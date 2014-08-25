@@ -1,0 +1,103 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+		<meta charset="UTF-8">
+	<!-- CouchDB scripts -->
+	<script src="/_utils/script/json2.js" type="text/javascript"></script>
+    <script src="/_utils/script/sha1.js" type="text/javascript"></script>
+	<script src="/_utils/script/couch.js" type="text/javascript"></script>
+	<script src="/_utils/script/oauth.js" type="text/javascript"></script>
+	<script src="/_utils/script/jquery.js" type="text/javascript"></script>
+    <script src="/_utils/script/jquery.couch.js" type="text/javascript"></script>
+    <script src="/_utils/script/jquery.dialog.js" type="text/javascript"></script> 
+	<!-- Dhtmlx scripts -->
+	<link rel="stylesheet" type="text/css" href="codebase/dhtmlx.css">	
+	<link rel="stylesheet" type="text/css" href="codebase/dhtmlxscheduler.css">	
+
+	<script src="codebase/dhtmlx.js" type="text/javascript"></script> 
+    <script src="codebase/dhtmlxscheduler.js" type="text/javascript"></script> 
+	<script src="codebase/ext/dhtmlxscheduler_recurring.js" type="text/javascript"></script>
+	<script src='codebase/ext/dhtmlxscheduler_minical.js' type="text/javascript"></script>
+	<script src="codebase/ext/dhtmlxscheduler_editors.js" type="text/javascript"></script>
+	<script src="codebase/ext/dhtmlxscheduler_quick_info.js" type="text/javascript"></script>
+	<script src="codebase/ext/dhtmlxscheduler_readonly.js"></script>
+	<script src="codebase/ext/dhtmlxscheduler_serialize.js"></script>
+	<script src="codebase/ext/dhtmlxscheduler_units.js"></script>
+	<script src="codebase/ext/dhtmlxscheduler_timeline.js"></script>
+	<script src="codebase/ext/dhtmlxscheduler_treetimeline.js"></script>
+	<script src="codebase/ext/dhtmlxscheduler_tooltip.js"></script>
+	<script src="codebase/ext/dhtmlxscheduler_week_agenda.js"></script>
+	<script src="codebase/ext/dhtmlxscheduler_year_view.js"></script>
+
+
+
+	<!-- SR Manager specific scripts -->
+	<script src="async.js" type="text/javascript"></script>
+	<script src="users.js" type="text/javascript"></script>	
+	<script src="outlets.js" type="text/javascript"></script>	
+	<script src="activities.js" type="text/javascript"></script>
+	<script src="agenda.js" type="text/javascript"></script>		
+	<script src="maintoolbar.js" type="text/javascript"></script>
+	<script src="logic.js" type="text/javascript"></script>
+	<style>
+		html, body {
+	        width: 100%;      /*provides the correct work of a full-screen layout*/ 
+	        height: 100%;     /*provides the correct work of a full-screen layout*/
+	        overflow: hidden; /*hides the default body's space*/
+	        margin: 0px;      /*hides the body's scrolls*/
+	    }
+	</style>
+
+	<title>SRM Application</title>
+    </head>
+    <body>		
+		
+        <script type="text/javascript" charset="utf-8"> 
+
+		$.couch.urlPrefix = CouchDB.protocol + CouchDB.host;
+
+		var worker = new Worker('couchdb_utils.js');
+		worker.onmessage = function(e) {
+			console.log(e.data);
+		};
+		worker.postMessage({'cmd': 'start', 'msg': 'Lord Vader?'});
+		worker.postMessage({'cmd': 'setCouchDB_host', 'msg': CouchDB.host});
+
+				
+		//---------------------
+		//Main application loop	
+        dhtmlxEvent(window,"load",function(){ 
+			logic.init();
+        }); 
+
+
+		function showView(view) {
+			
+			var firstShow = layout.cells("a").showView(view);
+			
+			// view became visible first time, loading content
+			if (firstShow) {
+			
+				if (view == "userstable") {
+					userstable.showGrid();
+				}
+				
+				if (view == "outletstable") {
+					outletstable.showGrid();
+				}
+
+				if (view == "activitytable"){
+					activitytable.showGrid();
+				}
+
+				if(view == "agenda"){
+					agenda.showAgenda();
+				}
+			}
+		}
+
+		//---------------------
+		
+        </script>
+    </body>
+</html>
