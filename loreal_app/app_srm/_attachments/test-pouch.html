@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Test Pouch</title>
+
+    <link rel="stylesheet" type="text/css" href="codebase/dhtmlx.css">
+    <script src="codebase/dhtmlx.js" type="text/javascript"></script>
+
+</head>
+<body>
+
+
+    <script type="text/javascript">
+        dhtmlxEvent(window,"load",function(){
+            var layout = new dhtmlXLayoutObject(document.body,"1C");
+            layout.cells("a").setText("Contacts");
+            layout.cells("b").setText("Contact Details");
+            layout.cells("b").setWidth(500);
+
+            var menu = layout.attachMenu();
+        });
+    </script>
+
+</body>
+</html>

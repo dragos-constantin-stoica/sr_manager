@@ -9,6 +9,7 @@ var maintoolbar = {
 		{ id: "agenda", type: "button", img:"calendar.png",  text: "Agenda", action:"agendaOnClick" },
 		{ id: "reports", type: "button", img:"chart_bar.png", text: "Rapoarte" },
 		{ id: "messages", type: "button", img:"emails.png",  text: "Mesaje" },
+		{ id: "testpouch", type: "button", img:"emails.png",  text: "Test pouch", action:"testpouchOnClick"  },
 		{ id: "logout", type: "button", img:"disconnect.png", text: "Logout", action:"logoutOnClick"}
 	],
 	
@@ -26,6 +27,7 @@ var maintoolbar = {
 				{ id: "agenda", type: "button", img:"calendar.png",  text: "Agenda", action:"agendaOnClick" },
 				{ id: "reports", type: "button", img:"chart_bar.png", text: "Rapoarte" },
 				{ id: "messages", type: "button", img:"emails.png",  text: "Mesaje" },
+                { id: "testpouch", type: "button", img:"emails.png",  text: "Test pouch", action:"testpouchOnClick" },
 				{ id: "logout", type: "button", img:"disconnect.png", text: "Logout", action:"logoutOnClick"}
 			];
 		}
@@ -37,6 +39,7 @@ var maintoolbar = {
 				{ id: "agenda", type: "button", img:"calendar.png",  text: "Agenda", action:"agendaOnClick" },
 				{ id: "reports", type: "button", img:"chart_bar.png", text: "Rapoarte" },
 				{ id: "messages", type: "button", img:"emails.png",  text: "Mesaje" },
+                { id: "testpouch", type: "button", img:"emails.png",  text: "Test pouch", action:"testpouchOnClick"  },
 				{ id: "logout", type: "button", img:"disconnect.png", text: "Logout", action:"logoutOnClick"}
 			];
 		}
@@ -48,6 +51,7 @@ var maintoolbar = {
 				{ id: "agenda", type: "button", img:"calendar.png",  text: "Agenda", action:"agendaOnClick" },
 				{ id: "reports", type: "button", img:"chart_bar.png", text: "Rapoarte" },
 				{ id: "messages", type: "button", img:"emails.png",  text: "Mesaje" },
+                { id: "testpouch", type: "button", img:"emails.png",  text: "Test pouch", action:"testpouchOnClick" },
 				{ id: "logout", type: "button", img:"disconnect.png", text: "Logout", action:"logoutOnClick"}
 			];
 		}
@@ -58,6 +62,11 @@ var maintoolbar = {
 	}
 }
 
+function testpouchOnClick(){
+//    console.log('called Test Pouch on click');
+    showView("testpouch");
+
+}
 
 function usersOnClick () {
 	showView("userstable");
