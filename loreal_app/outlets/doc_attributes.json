@@ -1,0 +1,18 @@
+{
+   "_id": "OUTLETS1",
+   "doctype": "outlets",
+   "data": [
+       {
+           "channel": "Hypermarket",
+           "client": "Carrefour",
+           "outlet": "Băneasa Bucureşti",
+           "sr": "[- NEALOCAT -]"
+       },
+       {
+           "channel": "Hypermarket",
+           "client": "Carrefour",
+           "outlet": "Orhideea Bucureşti",
+           "sr": "[- NEALOCAT -]"
+       }
+   ]
+}

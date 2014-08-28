@@ -112,6 +112,6 @@ self.onmessage = function(e) {
       break;
 
     default:
-      self.postMessage('WORKER - Unknown command ?!? ' + data.msg);
+      self.postMessage('WORKER - Unknown command ?!? WTF do you mean by: ' + data.msg + ' ???');
   };
 };

@@ -1,4 +1,4 @@
 { 
-	"_id": "_design/app_srm" , 
+	"_id": "_design/app_srm_webix" , 
 	"language":"javascript"
 }
