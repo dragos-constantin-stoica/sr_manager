@@ -44,7 +44,9 @@ webix.protoUI({
 			"scheduler/ext/dhtmlxscheduler_treetimeline.js",
 			"scheduler/ext/dhtmlxscheduler_tooltip.js",
 			"scheduler/ext/dhtmlxscheduler_week_agenda.js",
-			"scheduler/ext/dhtmlxscheduler_year_view.js"
+			"scheduler/ext/dhtmlxscheduler_year_view.js",
+			"scheduler/locale/locale_ro.js",
+			"scheduler/locale/recurring/locale_recurring_ro.js"
 		], function(){
 			var scheduler = this._scheduler = window.Scheduler ? Scheduler.getSchedulerInstance() : window.scheduler;
 

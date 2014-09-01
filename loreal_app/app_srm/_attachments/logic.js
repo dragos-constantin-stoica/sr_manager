@@ -58,6 +58,7 @@ var logic = {
 											usersdata.push(userdoc[i].value);
 										}
 										userstable.setUsersData(usersdata);
+										agenda.setUsers(usersdata);
 										callback(null,usersdata);
 										
 									}
@@ -74,6 +75,7 @@ var logic = {
 												usersdata.push(userdoc[i].value);
 											}
 											userstable.setUsersData(usersdata);
+											agenda.setUsers(usersdata);
 											callback(null,usersdata);
 										}
 									);
@@ -83,6 +85,7 @@ var logic = {
 										var usersdata = [];
 										usersdata.push(USERNAME);
 										userstable.setUsersData(usersdata);
+										agenda.setUsers(usersdata);
 										callback(null,usersdata);
 						
 										//Activate toolbar items
@@ -113,6 +116,7 @@ var logic = {
 								function(couchdoc){
 									outletsdata = (JSON.parse(couchdoc)).data;
 									outletstable.setOutletsData(outletsdata);
+									agenda.setOutlets(outletsdata);
 									callback(null,outletsdata);
 								}
 							);

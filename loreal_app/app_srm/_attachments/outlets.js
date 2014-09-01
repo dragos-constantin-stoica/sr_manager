@@ -133,6 +133,8 @@ function save_outlet(){
 			    success: function(data) {
 			        console.log(data);
 					outletstable.setOutletsData(outlets_doc.data);
+					agenda.setOutlets(outlets_doc.data);
+					webix.message("Datele au fost salvate cu succes!");
 			    },
 			    error: function(status) {
 			        console.log(status);
@@ -146,6 +148,8 @@ function save_outlet(){
 			    success: function(data) {
 			        console.log(data);
 					outletstable.setOutletsData(outlets_doc.data);
+					agenda.setOutlets(outlets_doc.data);
+					webix.message("Datele au fost salvate cu succes!");
 			    },
 			    error: function(status) {
 			        console.log(status);
@@ -155,3 +159,5 @@ function save_outlet(){
 	});
 	
 };
+
+//TODO - keep history of SR for a given outlet

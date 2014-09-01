@@ -42,19 +42,17 @@ var userstable = {
 					} 
 				}
 			}
-	},
-	
+	},	
 	usersmenu: {
 		view:"toolbar",
 		    id:"userstoolbar",
 		    cols:[
-			{ view:"button", id:"passworduser",    type:"iconButton", icon:"key",    label:"Scrimbă parola", width:150, click:"password_user();" },
-			{ view:"button", id:"newuser",    type:"iconButton", icon:"plus",    label:"Crează utilizator", width:150, click:"new_user();" },
-			{ view:"button", id:"groupbyasm", type:"iconButton", icon:"indent",  label:"Grupează ASM",      width:150, click:"group_by_ASM();" },
-			{ view:"button", id:"ungroup",    type:"iconButton", icon:"outdent", label:"Afişează normal",   width:150, click:"ungroup_user();" },
-			{ view:"button", id:"saveuser",   type:"iconButton", icon:"save",    label:"Salvează datele",   width:150, click:"save_user();" }
-		]
-	
+				{ view:"button", id:"passworduser",    type:"iconButton", icon:"key",    label:"Scrimbă parola", width:150, click:"password_user();" },
+				{ view:"button", id:"newuser",    type:"iconButton", icon:"plus",    label:"Crează utilizator", width:150, click:"new_user();" },
+				{ view:"button", id:"groupbyasm", type:"iconButton", icon:"indent",  label:"Grupează ASM",      width:150, click:"group_by_ASM();" },
+				{ view:"button", id:"ungroup",    type:"iconButton", icon:"outdent", label:"Afişează normal",   width:150, click:"ungroup_user();" },
+				{ view:"button", id:"saveuser",   type:"iconButton", icon:"save",    label:"Salvează datele",   width:150, click:"save_user();" }
+			]
 	},
 	
 	getUsersMenu: function () {
@@ -107,15 +105,14 @@ var userstable = {
 			};
 			this.usersmenu = {
 				view:"toolbar",
-				    id:"userstoolbar",
-				    cols:[
+			    id:"userstoolbar",
+			    cols:[
 					{ view:"button", id:"passworduser",    type:"iconButton", icon:"key",    label:"Scrimbă parola", width:150, click:"password_user();" },
 					{ view:"button", id:"newuser",    type:"iconButton", icon:"plus",    label:"Crează utilizator", width:150, click:"new_user();" },
 					{ view:"button", id:"groupbyasm", type:"iconButton", icon:"indent",  label:"Grupează ASM",      width:150, click:"group_by_ASM();" },
 					{ view:"button", id:"ungroup",    type:"iconButton", icon:"outdent", label:"Afişează normal",   width:150, click:"ungroup_user();" },
 					{ view:"button", id:"saveuser",   type:"iconButton", icon:"save",    label:"Salvează datele",   width:150, click:"save_user();" }
 				]
-	
 			};
 		};
 		
@@ -490,6 +487,7 @@ function save_user(){
 										usersdata.push(userdoc[i].value);
 									}
 									userstable.setUsersData(usersdata);
+									agenda.setUsers(usersdata);
 									callback(null,"Admin users loaded");
 								}
 							);
@@ -506,6 +504,7 @@ function save_user(){
 											usersdata.push(userdoc[i].value);
 										}
 										userstable.setUsersData(usersdata);
+										agenda.setUsers(usersdata);
 										callback(null,"ASM users loaded");
 									}
 								);
@@ -515,6 +514,7 @@ function save_user(){
 									usersdata = [];
 									usersdata.push(USERNAME);
 									userstable.setUsersData(usersdata);
+									agenda.setUsers(usersdata);									
 									callback(null,"Guest/SR users loaded");
 					
 									//Activate toolbar items
@@ -545,6 +545,7 @@ function save_user(){
 							function(couchdoc){
 								outletsdata = (JSON.parse(couchdoc)).data;
 								outletstable.setOutletsData(outletsdata);
+								agenda.setOutlets(outletsdata);
 								callback(null,outletsdata);
 							}
 						);

@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+		<meta charset="UTF-8">	
+	<meta  name = "viewport" content = "initial-scale = 1.0, maximum-scale = 1.0, user-scalable = no">		
+	<!-- Webix styles -->
+	<link rel="stylesheet" href="webix/codebase/skins/touch.css" type="text/css" media="screen" charset="utf-8">
+	<!--
+    <link rel="stylesheet" href="webix/codebase/webix.css" type="text/css">
+	-->
+		
+	<!-- CouchDB scripts -->
+	<script src="/_utils/script/json2.js" type="text/javascript"></script>
+    <script src="/_utils/script/sha1.js" type="text/javascript"></script>
+	<script src="/_utils/script/couch.js" type="text/javascript"></script>
+	<script src="/_utils/script/jquery.js" type="text/javascript"></script>
+    <script src="/_utils/script/jquery.couch.js" type="text/javascript"></script>
+    <script src="/_utils/script/jquery.dialog.js" type="text/javascript"></script>    
+
+	<!-- Webix scripts -->
+    <script src="webix/codebase/webix.js" type="text/javascript"></script> 
+	
+	<!-- SR Manager specific scripts -->
+	<script src="async.js" type="text/javascript"></script>
+
+	<script src="mobile/agenda.js" type="text/javascript"></script>
+	<script src="mobile/users.js" type="text/javascript"></script>
+	<script src="mobile/outlets.js" type="text/javascript"></script>
+	<script src="mobile/activities.js" type="text/javascript"></script>
+	<script src="mobile/main_layout.js" type="text/javascript"></script>
+	<script src="mobile/logic.js" type="text/javascript"></script>	
+	
+	<title>SRM Application</title>
+    </head>
+    <body>		
+		
+        <script type="text/javascript" charset="utf-8"> 
+		//we need to be connected to server in order to load the page
+		//if logged user has SR role then we may go offline
+		var OFFLINE = false;
+		var MOBILE = true;
+
+		//$.couch.urlPrefix = "http://localhost:5984";
+		$.couch.urlPrefix = CouchDB.protocol + CouchDB.host;
+
+		//use worker for CouchDB communication
+		var worker = new Worker('couchdb_utils.js');
+		worker.onmessage = function(e) {
+			console.log(e.data);
+		};
+		worker.postMessage({'cmd': 'start', 'msg': 'Lord Vader?'});
+		worker.postMessage({'cmd': 'setCouchDB_host', 'msg': CouchDB.host});
+		
+		//load application files
+/*	
+		webix.require("../../../../mobile/agenda.js");
+		webix.require("../../../../mobile/users.js");
+		webix.require("../../../../mobile/outlets.js");
+		webix.require("../../../../mobile/activities.js");
+		webix.require("../../../../mobile/main_layout.js");
+		webix.require("../../../../mobile/logic.js");
+*/	
+
+		//---------------------
+		//Main application loop	
+		webix.ready(function(){
+			webix.ui.fullScreen();
+			//One page application
+			logic.init();		
+		});
+		//---------------------
+		
+        </script>
+    </body>
+</html>

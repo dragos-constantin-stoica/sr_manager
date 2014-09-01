@@ -95,6 +95,7 @@ var activitytable = {
 		],
 		select:"row",
 		navigation:true,
+	    tooltip:true,
 		drag:true,
 	    datatype:"json",
 		on:{
@@ -129,10 +130,12 @@ var activitymenu = {
 	view:"toolbar",
 	    id:"activitytoolbar",
 	    cols:[
-	{ view:"button", id:"newactivity", type:"iconButton", icon:"plus", label:"Crează activitate", width:150, click:"new_activity();" },
-	{ view:"button", id:"deleteactivity", type:"iconButton", icon:"minus", label:"Şterge activitate", width:150, click:"delete_activity();" },
-	{ view:"button", id:"saveactivity" , type:"iconButton", icon:"save", label:"Salvează datele", width:150, click:"save_activity();" }
-	]
+			{ view:"button", id:"newactivity", type:"iconButton", icon:"plus",         label:"Crează activitate", width:150, click:"new_activity();" },
+			{ view:"button", id:"deleteactivity", type:"iconButton", icon:"minus",     label:"Şterge activitate", width:150, click:"delete_activity();" },
+			{ view:"button", id:"addoutlet" , type:"iconButton", icon:"shopping-cart", label:"Specifică Client", width:150, click:"outlet_activity();" },
+			{ view:"button", id:"srreport", type:"iconButton", icon:"magic",           label:"Afişează Raport", width:150, click:"srreportOnClick();" },
+			{ view:"button", id:"saveactivity" , type:"iconButton", icon:"save",       label:"Salvează datele", width:150, click:"save_activity();" },	
+		]
 	
 };
 
@@ -160,6 +163,7 @@ function save_activity (){
 			    success: function(data) {
 			        console.log(data);
 					activitytable.setFormularRaportSR(activity_doc.data);
+					webix.message("Datele au fost salvate cu succes!");
 			    },
 			    error: function(status) {
 			        console.log(status);
@@ -173,7 +177,7 @@ function save_activity (){
 			    success: function(data) {
 			        console.log(data);
 					activitytable.setFormularRaportSR(activity_doc.data);
-					
+					webix.message("Datele au fost salvate cu succes!");
 			    },
 			    error: function(status) {
 			        console.log(status);
@@ -183,9 +187,95 @@ function save_activity (){
 	});	
 
 };
+function srreportOnClick () {
+	if(webix.isUndefined($$('reportSR'))) $$('mainpage').addView(displaySRReport());	
+	$$('reportSR').show();
+};
 
+function outlet_activity() {
+	if(!$$('activitytable').getSelectedId()){
+        webix.message("Vă rog să alegeţi o activitate!");
+        return;
+    }	
+	//get the client list from control_data
+	//they are all checked
+	var sel = $$('activitytable').getSelectedId();
+	var row = $$('activitytable').getItem(sel.row);
+	var control_data = row["control_data"];
+	
+	//biuld client list
+	var client_list = [];
+	if(control_data != ""){
+		var tmp = control_data.split(",");
+		for(var k = 0; k < tmp.length; k++)
+			client_list.push({ch1:true, client:tmp[k]}) ;
+	}
+	//get all clients list from outletstable
+	var tmp = outletstable.getOutletsData();
+	for(var k = 0; k < tmp.length; k++){
+		if(control_data.indexOf(tmp[k].client) == -1){
+			client_list.push({ch1:false, client:tmp[k].client});
+			control_data = control_data + "," + tmp[k].client;
+		}
+	};	
+	
+	webix.ui({
+		id: "outletswindow",
+		view:"window", 
+		move:true,
+	    head:"Lista Clienţilor", 
+		width:400,
+		height: 600,
+		position:"top",
+		body:{
+			rows:[
+			{
+				id: "outlets_list",
+				view:"datatable",
+				columns:[
+					{ id:"ch1", header:{ content:"masterCheckbox" }, checkValue:true, uncheckValue:false, template:"{common.checkbox()}", width:40},
+					{ id:"client",	sort:"string", header:["Client", {content:"textFilter"}],width:350}
+				],
+				//autoheight:true,
+				autowidth:true,
+				data: webix.copy(client_list)
+			},
+			
+			{ view:"button", id:"ok_button", value:"Validează selecţia", type:"form", align:"center", inputWidth:200, click:"ok_button();" }
+			
+			]
+		}
+	}).show();
+	
+	
+};
 
-//build SR report
+function ok_button() {
+
+	var control_data = [];
+	
+	$$('outlets_list').eachRow( 
+	    function (row){ 
+			var outlet_row = $$('outlets_list').getItem(row);
+			if(outlet_row.ch1){
+				control_data.push(outlet_row.client);
+			}
+		}
+	)
+	//if all outlets are selected then clear selection
+	if($$('outlets_list').count() == control_data.length) control_data = [];
+
+	var sel = $$('activitytable').getSelectedId();
+	var row = $$('activitytable').getItem(sel.row);
+	//set control_data
+	row["control_data"] = control_data.join();
+	$$('activitytable').updateItem(sel.row, row);
+	
+	//clear window
+	if(!webix.isUndefined($$('outletswindow'))) $$('outletswindow').destructor();
+}
+
+//show SR report
 function displaySRReport () {
 	var formular_raport_SR = activitytable.getFromularRaportSR();
 	if (!webix.isUndefined(formular_raport_SR) && webix.isArray(formular_raport_SR)){
@@ -263,4 +353,6 @@ function displaySRReport () {
 		return reportSR;
 	}
 };
+
+//TODO build a real SR Report with submit and upload
 
