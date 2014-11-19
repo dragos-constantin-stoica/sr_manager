@@ -1,5 +1,5 @@
 function(doc) {
-  if (doc.doc_type == "user") {
+  if (doc.doctype == "user") {
 	    emit([doc.boss_asm], 
 			{
 				"id": doc._id,

@@ -14,9 +14,9 @@ var userstable = {
 			{ id:"rev",       header: "rev", hidden:true, width: 50},
 			{ id:"username", header:["Nume utilizator",{content:"textFilter"}], width:300, fillspace:true},
 			{ id:"password", header:"Parola", hidden:true, editor:"text", width:100},		
-			{ id:"name",     header:["Preume",{content:"textFilter"}], editor:"text", width:200},
+			{ id:"name",     header:["Prenume",{content:"textFilter"}], editor:"text", width:200},
 			{ id:"surname",  header: ["Nume",{content:"textFilter"}], editor:"text", width:200},
-			{ id:"boss_asm", header:["Nume şef SR (e un ASM)", {content:"textFilter"}], editor:"text" , 
+			{ id:"boss_asm", header:["Nume ASM", {content:"textFilter"}], editor:"text" , 
 				template:function(obj, common){
 							if (obj.$group) return common.treetable(obj, common) + obj.value;
 							return obj.boss_asm;
@@ -74,9 +74,9 @@ var userstable = {
 					{ id:"rev",       header: "rev", hidden:true, width: 50},
 					{ id:"username", header:["Nume utilizator",{content:"textFilter"}], width:300, fillspace:true},
 					{ id:"password", header:"Parola", hidden:true, editor:"text", width:100},		
-					{ id:"name",     header:["Preume",{content:"textFilter"}], editor:"text", width:200},
+					{ id:"name",     header:["Prenume",{content:"textFilter"}], editor:"text", width:200},
 					{ id:"surname",  header: ["Nume",{content:"textFilter"}], editor:"text", width:200},
-					{ id:"boss_asm", header:["Nume şef SR (e un ASM)", {content:"textFilter"}], editor:"select" , options:this.asmuserslist,
+					{ id:"boss_asm", header:["Nume ASM", {content:"textFilter"}], editor:"select" , options:this.asmuserslist,
 						template:function(obj, common){
 									if (obj.$group) return common.treetable(obj, common) + obj.value;
 									return obj.boss_asm;
@@ -126,9 +126,9 @@ var userstable = {
 					{ id:"rev",       header: "rev", hidden:true, width: 50},
 					{ id:"username", header:["Nume utilizator",{content:"textFilter"}], width:300, fillspace:true},
 					{ id:"password", header:"Parola", hidden:true, editor:"text", width:100},		
-					{ id:"name",     header:["Preume",{content:"textFilter"}], editor:"text", width:200},
+					{ id:"name",     header:["Prenume",{content:"textFilter"}], editor:"text", width:200},
 					{ id:"surname",  header: ["Nume",{content:"textFilter"}], editor:"text", width:200},
-					{ id:"boss_asm", header:"Nume şef SR (e un ASM)",	width:300},
+					{ id:"boss_asm", header:"Nume ASM",	width:300},
 					{ id:"roles_admin", header:"ADMIN", hidden:true, width:0, template:"{common.checkbox()}"},
 					{ id:"roles_guest", header:"Guest", hidden:true, width:0, template:"{common.checkbox()}"},			
 					{ id:"roles_asm",   header:"ASM",   hidden:true, width:0, template:"{common.checkbox()}"},
@@ -170,9 +170,9 @@ var userstable = {
 					{ id:"rev",       header: "rev", hidden:true, width: 50},
 					{ id:"username", header:"Nume utilizator", width:300, fillspace:true},
 					{ id:"password", header:"Parola", hidden:true, editor:"text", width:100},		
-					{ id:"name",     header:"Preume", width:200},
+					{ id:"name",     header:"Prenume", width:200},
 					{ id:"surname",  header: "Nume",  width:200},
-					{ id:"boss_asm", header:"Nume şef SR (e un ASM)", width:300},
+					{ id:"boss_asm", header:"Nume ASM", width:300},
 					{ id:"roles_admin", header:"ADMIN", hidden:true, width:0, template:"{common.checkbox()}"},
 					{ id:"roles_guest", header:"Guest", hidden:true, width:0,  template:"{common.checkbox()}"},			
 					{ id:"roles_asm",   header:"ASM",   hidden:true, width:0,  template:"{common.checkbox()}"},

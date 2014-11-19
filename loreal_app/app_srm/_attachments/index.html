@@ -27,6 +27,7 @@
 	<script src="webix/components/scheduler/scheduler/ext/dhtmlxscheduler_editors.js" type="text/javascript"></script>
 	<script src="webix/components/scheduler/scheduler/ext/dhtmlxscheduler_quick_info.js" type="text/javascript"></script>
 	<script src="webix/components/scheduler/scheduler/ext/dhtmlxscheduler_readonly.js"></script>
+	<script src="webix/components/scheduler/scheduler/ext/dhtmlxscheduler_limit.js"></script>
 	<script src="webix/components/scheduler/scheduler/ext/dhtmlxscheduler_serialize.js"></script>
 	<script src="webix/components/scheduler/scheduler/ext/dhtmlxscheduler_units.js"></script>
 	<script src="webix/components/scheduler/scheduler/ext/dhtmlxscheduler_timeline.js"></script>
@@ -37,6 +38,11 @@
 	<script src="webix/components/scheduler/scheduler/locale/locale_ro.js" charset="utf-8"></script>
 	<script src="webix/components/scheduler/scheduler/locale/recurring/locale_recurring_ro.js" charset="utf-8"></script>
 	
+		<script src="agenda.js" type="text/javascript"></script> 
+
+	<!--
+	<script src="activities.js" type="text/javascript"></script> 
+	-->
 	
 	<!-- SR Manager specific scripts -->
 	<script src="async.js" type="text/javascript"></script>
@@ -71,7 +77,7 @@
 		//load application files
 		webix.require.disabled = false;
 	
-		webix.require("../../../agenda.js");
+		//webix.require("../../../agenda.js");
 		webix.require("../../../users.js");
 		webix.require("../../../outlets.js");
 		webix.require("../../../activities.js");
