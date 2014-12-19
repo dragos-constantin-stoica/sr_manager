@@ -132,21 +132,6 @@ var logic = {
 								}
 							);	
 						},
-						//get events
-						function(callback) {
-							var events_data = [];
-							webix.ajax(CouchDB.protocol + CouchDB.host + "/loreal_app/_design/events/_view/all_events",
-								function(couchdoc) {
-									var userdoc = (JSON.parse(couchdoc)).rows;
-									for(var i = 0; i < userdoc.length; i++){
-										userdoc[i].value.id = userdoc[i].value._id;
-										events_data.push(userdoc[i].value);
-									}
-									agenda.setEventsData(events_data);
-									callback(null, events_data);
-								}
-							);
-						},
 						//build user interface according to role(s)						
 						function(callback){
 							var role = (USERNAME.roles_admin ? 'roles_admin':(USERNAME.roles_asm ? 'roles_asm':((USERNAME.roles_sr || USERNAME.roles_guest) ? 'roles_sr':'')));

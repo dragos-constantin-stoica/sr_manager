@@ -1,5 +1,5 @@
 function(doc) {
-	if (doc.doctype == "user") {
+	if (doc.doc_type == "user") {
 		if(doc.roles_asm){
 			emit([doc.username], 
 				{

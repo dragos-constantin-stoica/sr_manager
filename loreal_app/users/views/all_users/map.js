@@ -1,5 +1,5 @@
 function(doc) {
-  if (doc.doctype == "user") {
+  if (doc.doc_type == "user") {
     emit([doc.username], 
 		{
 			"id": doc._id,

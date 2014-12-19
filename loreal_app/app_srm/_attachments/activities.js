@@ -1,6 +1,3 @@
-
-//>>># sourceURL=activities.js
-
 //activitytable	
 
 //visible only to admin role
@@ -93,7 +90,7 @@ var activitytable = {
 		columns:[
 		{ id:"id",  header:"#", hidden:true, width:50},
 		{ id:"value", header:"Activităţi", template:"{common.treetable()} #value#", editor:"popup", editValue:"value", fillspace:true},
-		{ id:"control_type", header:"Tip control",  width:200, editor:"select", editValue:"value", options:["section", "fieldset", "label", "checkbox", "numeric", "counter", "textarea", "uploader"]},
+		{ id:"control_type", header:"Tip control",  width:200, editor:"select", editValue:"value", options:["section", "fieldset", "label", "checkbox", "counter", "textarea", "uploader"]},
 		{ id:"control_data", header:"Sursă date",  width:200}
 		],
 		select:"row",
@@ -103,20 +100,14 @@ var activitytable = {
 	    datatype:"json",
 		on:{
 			onBeforeDrop:function(context){
-				//drag a section --- keep the same level and drop next
-				if(this.getItem(context.source).control_type == "section"){
+				if ((this.getItem(context.target).control_type == "section" || this.getItem(context.target).control_type == "fieldset") 
+				    || this.getItem(context.target).open){
+					//drop as first child
+					context.parent = context.target;
+					context.index = 0;
+				} else {
+					//drop next
 					context.index++;
-				}else{
-					//this is a fieldset or a control --- drop it under the section or fieldset
-					if ((this.getItem(context.target).control_type == "section" || this.getItem(context.target).control_type == "fieldset")
-						|| this.getItem(context.target).open){
-							//drop as first child
-							context.parent = context.target;
-							context.index = 0;
-					} else {
-						//drop next
-						context.index++;
-					}
 				}
 			}
 		}
@@ -210,7 +201,7 @@ function outlet_activity() {
 	//they are all checked
 	var sel = $$('activitytable').getSelectedId();
 	var row = $$('activitytable').getItem(sel.row);
-	var control_data = (webix.isUndefined(row["control_data"]))?([]):row["control_data"];
+	var control_data = row["control_data"];
 	
 	//biuld client list
 	var client_list = [];
@@ -334,9 +325,6 @@ function displaySRReport () {
 									rows.rows.push({"view":itemControls[j].control_type, "value":itemControls[j].value, "autosend":false, "link":"doclist", "id":"files", "name":"files" });
 									rows.rows.push({"view":"list", "type":itemControls[j].control_type, "scroll":false, "id":"doclist", "autoheight":true});
 									break;
-								case "numeric":
-									rows.rows.push({"view":"text", "label":itemControls[j].value, validate:"isNumber", labelWidth:300});
-									break;
 								default:
 									rows.rows.push({"view":itemControls[j].control_type, "label":itemControls[j].value, labelWidth:300});
 							}
@@ -348,16 +336,8 @@ function displaySRReport () {
 							var fieldsetControls = itemControls[j].data;
 							var k = 0;
 							for (k = 0; k < CONTROLS; k++){
-								switch(fieldsetControls[k].control_type){
-									case "numeric":
-										//controls
-										fieldset.body.rows.push({"view":"text", "label":fieldsetControls[k].value, validate:"isNumber", labelWidth:300});
-										break;
-									default:
-										//controls
-										fieldset.body.rows.push({"view":fieldsetControls[k].control_type, "label":fieldsetControls[k].value, labelWidth:300});
-								}
-								
+								//controls
+								fieldset.body.rows.push({"view":fieldsetControls[k].control_type, "label":fieldsetControls[k].value, labelWidth:300});
 							}
 							rows.rows.push(fieldset); 
 						}
