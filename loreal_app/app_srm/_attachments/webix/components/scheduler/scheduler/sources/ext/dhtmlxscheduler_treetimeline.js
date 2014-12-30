@@ -1,19 +1,313 @@
 /*
-dhtmlxScheduler v.4.1.0 Stardard
+dhtmlxScheduler v.4.2.0 Stardard
 
 This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
 
 (c) Dinamenta, UAB.
 */
-scheduler.attachEvent("onTimelineCreated",function(e){"tree"==e.render&&(e.y_unit_original=e.y_unit,e.y_unit=scheduler._getArrayToDisplay(e.y_unit_original),scheduler.attachEvent("onOptionsLoadStart",function(){e.y_unit=scheduler._getArrayToDisplay(e.y_unit_original)}),scheduler.form_blocks[e.name]={render:function(e){var t="<div class='dhx_section_timeline' style='overflow: hidden; height: "+e.height+"px'></div>";return t},set_value:function(e,t,r,s){var a=scheduler._getArrayForSelect(scheduler.matrix[s.type].y_unit_original,s.type);
-e.innerHTML="";var i=document.createElement("select");e.appendChild(i);var n=e.getElementsByTagName("select")[0];!n._dhx_onchange&&s.onchange&&(n.onchange=s.onchange,n._dhx_onchange=!0);for(var d=0;d<a.length;d++){var l=document.createElement("option");l.value=a[d].key,l.value==r[scheduler.matrix[s.type].y_property]&&(l.selected=!0),l.innerHTML=a[d].label,n.appendChild(l)}},get_value:function(e){return e.firstChild.value},focus:function(){}})}),scheduler.attachEvent("onBeforeSectionRender",function(e,t,r){var s={};
-if("tree"==e){var a,i,n,d,l,o;t.children?(a=r.folder_dy||r.dy,r.folder_dy&&!r.section_autoheight&&(n="height:"+r.folder_dy+"px;"),i="dhx_row_folder",d="dhx_matrix_scell folder",l="<div class='dhx_scell_expand'>"+(t.open?"-":"+")+"</div>",o=r.folder_events_available?"dhx_data_table folder_events":"dhx_data_table folder"):(a=r.dy,i="dhx_row_item",d="dhx_matrix_scell item"+(scheduler.templates[r.name+"_scaley_class"](t.key,t.label,t)?" "+scheduler.templates[r.name+"_scaley_class"](t.key,t.label,t):""),l="",o="dhx_data_table");
-var _="<div class='dhx_scell_level"+t.level+"'>"+l+"<div class='dhx_scell_name'>"+(scheduler.templates[r.name+"_scale_label"](t.key,t.label,t)||t.label)+"</div></div>";s={height:a,style_height:n,tr_className:i,td_className:d,td_content:_,table_className:o}}return s});var section_id_before;scheduler.attachEvent("onBeforeEventChanged",function(e,t,r){if(scheduler._isRender("tree")){var s=scheduler.getSection(e[scheduler.matrix[scheduler._mode].y_property]);if(s&&"undefined"!=typeof s.children&&!scheduler.matrix[scheduler._mode].folder_events_available)return r||(e[scheduler.matrix[scheduler._mode].y_property]=section_id_before),!1
-}return!0}),scheduler.attachEvent("onBeforeDrag",function(e,t,r){if(scheduler._isRender("tree")){var s,a=scheduler._locate_cell_timeline(r);if(a&&(s=scheduler.matrix[scheduler._mode].y_unit[a.y].key,"undefined"!=typeof scheduler.matrix[scheduler._mode].y_unit[a.y].children&&!scheduler.matrix[scheduler._mode].folder_events_available))return!1;var i=scheduler.getEvent(e);section_id_before=s||i[scheduler.matrix[scheduler._mode].y_property]}return!0}),scheduler._getArrayToDisplay=function(e){var t=[],r=function(e,s){for(var a=s||0,i=0;i<e.length;i++)e[i].level=a,"undefined"!=typeof e[i].children&&"undefined"==typeof e[i].key&&(e[i].key=scheduler.uid()),t.push(e[i]),e[i].open&&e[i].children&&r(e[i].children,a+1)
-};return r(e),t},scheduler._getArrayForSelect=function(e,t){var r=[],s=function(e){for(var a=0;a<e.length;a++)scheduler.matrix[t].folder_events_available?r.push(e[a]):"undefined"==typeof e[a].children&&r.push(e[a]),e[a].children&&s(e[a].children,t)};return s(e),r},scheduler._toggleFolderDisplay=function(e,t,r){var s,a=function(e,t,r,i){for(var n=0;n<t.length&&(t[n].key!=e&&!i||!t[n].children||(t[n].open="undefined"!=typeof r?r:!t[n].open,s=!0,i||!s));n++)t[n].children&&a(e,t[n].children,r,i)},i=scheduler.getSection(e);
-"undefined"!=typeof t||r||(t=!i.open),scheduler.callEvent("onBeforeFolderToggle",[i,t,r])&&(a(e,scheduler.matrix[scheduler._mode].y_unit_original,t,r),scheduler.matrix[scheduler._mode].y_unit=scheduler._getArrayToDisplay(scheduler.matrix[scheduler._mode].y_unit_original),scheduler.callEvent("onOptionsLoad",[]),scheduler.callEvent("onAfterFolderToggle",[i,t,r]))},scheduler.attachEvent("onCellClick",function(e,t){scheduler._isRender("tree")&&(scheduler.matrix[scheduler._mode].folder_events_available||"undefined"!=typeof scheduler.matrix[scheduler._mode].y_unit[t]&&"undefined"!=typeof scheduler.matrix[scheduler._mode].y_unit[t].children&&scheduler._toggleFolderDisplay(scheduler.matrix[scheduler._mode].y_unit[t].key))
-}),scheduler.attachEvent("onYScaleClick",function(e,t){scheduler._isRender("tree")&&"undefined"!=typeof t.children&&scheduler._toggleFolderDisplay(t.key)}),scheduler.getSection=function(e){if(scheduler._isRender("tree")){var t,r=function(e,s){for(var a=0;a<s.length;a++)s[a].key==e&&(t=s[a]),s[a].children&&r(e,s[a].children)};return r(e,scheduler.matrix[scheduler._mode].y_unit_original),t||null}},scheduler.deleteSection=function(e){if(scheduler._isRender("tree")){var t=!1,r=function(e,s){for(var a=0;a<s.length&&(s[a].key==e&&(s.splice(a,1),t=!0),!t);a++)s[a].children&&r(e,s[a].children)
-};return r(e,scheduler.matrix[scheduler._mode].y_unit_original),scheduler.matrix[scheduler._mode].y_unit=scheduler._getArrayToDisplay(scheduler.matrix[scheduler._mode].y_unit_original),scheduler.callEvent("onOptionsLoad",[]),t}},scheduler.deleteAllSections=function(){scheduler._isRender("tree")&&(scheduler.matrix[scheduler._mode].y_unit_original=[],scheduler.matrix[scheduler._mode].y_unit=scheduler._getArrayToDisplay(scheduler.matrix[scheduler._mode].y_unit_original),scheduler.callEvent("onOptionsLoad",[]))
-},scheduler.addSection=function(e,t){if(scheduler._isRender("tree")){var r=!1,s=function(e,a,i){if(t)for(var n=0;n<i.length&&(i[n].key==a&&"undefined"!=typeof i[n].children&&(i[n].children.push(e),r=!0),!r);n++)i[n].children&&s(e,a,i[n].children);else i.push(e),r=!0};return s(e,t,scheduler.matrix[scheduler._mode].y_unit_original),scheduler.matrix[scheduler._mode].y_unit=scheduler._getArrayToDisplay(scheduler.matrix[scheduler._mode].y_unit_original),scheduler.callEvent("onOptionsLoad",[]),r}},scheduler.openAllSections=function(){scheduler._isRender("tree")&&scheduler._toggleFolderDisplay(1,!0,!0)
-},scheduler.closeAllSections=function(){scheduler._isRender("tree")&&scheduler._toggleFolderDisplay(1,!1,!0)},scheduler.openSection=function(e){scheduler._isRender("tree")&&scheduler._toggleFolderDisplay(e,!0)},scheduler.closeSection=function(e){scheduler._isRender("tree")&&scheduler._toggleFolderDisplay(e,!1)};
-//# sourceMappingURL=../sources/ext/dhtmlxscheduler_treetimeline.js.map
+scheduler.attachEvent("onTimelineCreated", function (obj){
+
+	if(obj.render == "tree") {
+		obj.y_unit_original = obj.y_unit;
+		obj.y_unit = scheduler._getArrayToDisplay(obj.y_unit_original);
+
+        scheduler.attachEvent('onOptionsLoadStart', function(){
+            obj.y_unit = scheduler._getArrayToDisplay(obj.y_unit_original);
+        });
+		
+		scheduler.form_blocks[obj.name]={
+			render:function(sns) {
+				var _result = "<div class='dhx_section_timeline' style='overflow: hidden; height: "+sns.height+"px'></div>";
+				return _result;
+			},
+			set_value:function(node,value,ev,config){
+				var options = scheduler._getArrayForSelect(scheduler.matrix[config.type].y_unit_original, config.type);
+				node.innerHTML = '';
+				var temp_select = document.createElement('select');
+				node.appendChild(temp_select);
+
+				var select = node.getElementsByTagName('select')[0];
+
+				if (!select._dhx_onchange && config.onchange) {
+					select.onchange = config.onchange;
+					select._dhx_onchange = true;
+				}
+
+				for (var i = 0; i < options.length; i++) {
+					var temp_option = document.createElement('option');
+					temp_option.value = options[i].key;
+					if(temp_option.value == ev[scheduler.matrix[config.type].y_property])
+						temp_option.selected = true;
+					temp_option.innerHTML = options[i].label;
+					select.appendChild(temp_option);
+				}
+			},
+			get_value:function(node,ev,config){
+				return node.firstChild.value;
+			},
+			focus:function(node){
+			}
+		};
+
+
+	}
+});	
+
+scheduler.attachEvent("onBeforeSectionRender", function (render_name, y_unit, timeline){
+	var res = {};
+	if(render_name == "tree"){
+		var height;
+		// section 1
+		var tr_className, style_height, td_className;
+		var div_expand;
+		// section 3
+		var table_className;
+		if(y_unit.children) {
+			height = timeline.folder_dy||timeline.dy;
+			if(timeline.folder_dy && !timeline.section_autoheight) {
+				style_height = "height:"+timeline.folder_dy+"px;";
+			}
+			tr_className = "dhx_row_folder";
+			td_className = "dhx_matrix_scell folder";
+			div_expand = "<div class='dhx_scell_expand'>"+((y_unit.open)?'-':'+')+"</div>";
+			table_className = (timeline.folder_events_available)?"dhx_data_table folder_events":"dhx_data_table folder";
+		} else {
+			height = timeline.dy;
+			tr_className = "dhx_row_item";
+			td_className = "dhx_matrix_scell item"+(scheduler.templates[timeline.name+"_scaley_class"](y_unit.key, y_unit.label, y_unit) ?
+													" "+scheduler.templates[timeline.name+"_scaley_class"](y_unit.key, y_unit.label, y_unit) : '');
+			div_expand = '';
+			table_className = "dhx_data_table";
+		}
+		var td_content = "<div class='dhx_scell_level"+y_unit.level+"'>"+div_expand+"<div class='dhx_scell_name'>"+(scheduler.templates[timeline.name+'_scale_label'](y_unit.key, y_unit.label, y_unit)||y_unit.label)+"</div></div>";
+		
+		res = {
+			height: height,
+			style_height: style_height,
+			//section 1
+			tr_className: tr_className,
+			td_className: td_className,
+			td_content: td_content,
+			//section 3
+			table_className: table_className
+		};
+	}
+	return res;
+});
+
+var section_id_before; // section id of the event before dragging (to bring it back if user drop's event on folder without folder_events_available)
+
+scheduler.attachEvent("onBeforeEventChanged", function(event_object, native_event, is_new) {
+	if (scheduler._isRender("tree")) { // if mode's render == tree
+		var section = scheduler.getSection(event_object[scheduler.matrix[scheduler._mode].y_property]);
+		if (section && typeof section.children != 'undefined' && !scheduler.matrix[scheduler._mode].folder_events_available) { // section itself could be not defined in case of new event (addEventNow)
+			if (!is_new) { //if old - move back
+				event_object[scheduler.matrix[scheduler._mode].y_property] = section_id_before;
+			}
+			return false;
+		}
+	}
+	return true;
+});
+
+scheduler.attachEvent("onBeforeDrag", function (event_id, mode, native_event_object){
+	if(scheduler._isRender("tree")) {
+		var cell = scheduler._locate_cell_timeline(native_event_object);
+		var section_id;
+		if(cell) {
+			section_id = scheduler.matrix[scheduler._mode].y_unit[cell.y].key;
+			if(typeof scheduler.matrix[scheduler._mode].y_unit[cell.y].children != "undefined" && !scheduler.matrix[scheduler._mode].folder_events_available) {
+				return false;
+			}
+		}
+
+		var ev = scheduler.getEvent(event_id);
+		section_id_before = section_id||ev[scheduler.matrix[scheduler._mode].y_property]; // either event id or section_id will be available
+	}
+	return true;
+});		
+
+scheduler._getArrayToDisplay = function(array){ // function to flatten out hierarhical array, used for tree view
+	var result = [];
+	var fillResultArray = function(array, lvl){
+		var level = lvl||0;
+		for(var i=0; i<array.length; i++) {
+			array[i].level = level;
+			if(typeof array[i].children != "undefined" && typeof array[i].key == "undefined")
+				array[i].key=scheduler.uid();
+			result.push(array[i]);
+			if(array[i].open && array[i].children) {
+				fillResultArray(array[i].children, level+1);
+			} 
+		}
+	};
+	fillResultArray(array);
+	return result;
+};
+
+
+scheduler._getArrayForSelect = function(array, mode){ // function to flatten out hierarhical array, used for tree view
+	var result = [];
+	var fillResultArray = function(array){
+		for(var i=0; i<array.length; i++) {
+			if(scheduler.matrix[mode].folder_events_available) {
+				result.push(array[i]);
+			}
+			else {
+				if(typeof array[i].children == "undefined") {
+					result.push(array[i]);
+				}
+			}
+			if(array[i].children) 
+				fillResultArray(array[i].children, mode);
+		}
+	};
+	fillResultArray(array);
+	return result;
+};
+
+
+/*
+scheduler._toggleFolderDisplay(4) -- toggle display of the section with key 4 (closed -> open)
+scheduler._toggleFolderDisplay(4, true) -- open section with the key 4 (doesn't matter what status was before). False - close.
+scheduler._toggleFolderDisplay(4, false, true) -- close ALL sections. Key is not used in such condition.
+*/
+scheduler._toggleFolderDisplay = function(key, status, all_sections){ // used for tree view
+	var marked;
+	var toggleElement = function(key, array, status, all_sections) {
+		for (var i=0; i<array.length; i++) {
+			if((array[i].key == key || all_sections) && array[i].children) {
+				array[i].open = (typeof status != "undefined") ? status : !array[i].open;
+				marked = true;
+				if(!all_sections && marked) 
+					break;
+			}
+			if(array[i].children) {
+				toggleElement(key,array[i].children, status, all_sections);
+			}
+		}
+	};
+	var section = scheduler.getSection(key);
+
+	if((typeof status == "undefined") && !all_sections){
+		//toggle
+		status = !section.open;
+	}
+	if (scheduler.callEvent("onBeforeFolderToggle", [section, status, all_sections])) {
+		toggleElement(key,scheduler.matrix[scheduler._mode].y_unit_original, status, all_sections);
+		scheduler.matrix[scheduler._mode].y_unit = scheduler._getArrayToDisplay(scheduler.matrix[scheduler._mode].y_unit_original);
+		scheduler.callEvent("onOptionsLoad",[]);
+		scheduler.callEvent("onAfterFolderToggle", [section, status, all_sections]);
+	}
+};
+
+scheduler.attachEvent("onCellClick", function (x, y, a, b, event){
+	if(scheduler._isRender("tree")) {
+		if(!scheduler.matrix[scheduler._mode].folder_events_available) {
+			if(typeof scheduler.matrix[scheduler._mode].y_unit[y] != "undefined" &&
+				typeof scheduler.matrix[scheduler._mode].y_unit[y].children != "undefined") {
+					scheduler._toggleFolderDisplay(scheduler.matrix[scheduler._mode].y_unit[y].key);
+			}
+		}
+	}
+});
+
+scheduler.attachEvent("onYScaleClick", function (index, value, event){
+	if(scheduler._isRender("tree")) {
+		if(typeof value.children != "undefined") {
+			scheduler._toggleFolderDisplay(value.key);
+		}
+	}
+});
+
+scheduler.getSection = function(id){
+	if(scheduler._isRender("tree")) {
+		var obj;
+		var findElement = function(key, array) {
+			for (var i=0; i<array.length; i++) {
+				if(array[i].key == key) 
+					obj = array[i];
+				if(array[i].children) 
+					findElement(key,array[i].children);
+			}
+		};
+		findElement(id, scheduler.matrix[scheduler._mode].y_unit_original);
+		return obj||null;
+	}
+};
+
+scheduler.deleteSection = function(id){
+	if(scheduler._isRender("tree")) {
+		var result = false;
+		var deleteElement = function(key, array) {
+			for (var i=0; i<array.length; i++) {
+				if(array[i].key == key) {
+					array.splice(i,1);
+					result = true;
+				}
+				if(result) 
+					break;
+				if(array[i].children) 
+					deleteElement(key,array[i].children);
+			}
+		};
+		deleteElement(id, scheduler.matrix[scheduler._mode].y_unit_original);
+		scheduler.matrix[scheduler._mode].y_unit = scheduler._getArrayToDisplay(scheduler.matrix[scheduler._mode].y_unit_original);
+		scheduler.callEvent("onOptionsLoad",[]);
+		return result;
+	}	
+};
+
+scheduler.deleteAllSections = function(){
+    if(scheduler._isRender("tree")) {
+        scheduler.matrix[scheduler._mode].y_unit_original = [];
+        scheduler.matrix[scheduler._mode].y_unit = scheduler._getArrayToDisplay(scheduler.matrix[scheduler._mode].y_unit_original);
+        scheduler.callEvent("onOptionsLoad",[]);
+    }
+};
+
+scheduler.addSection = function(obj, parent_id){
+	if(scheduler._isRender("tree")) {
+		var result = false;
+		var addElement = function(obj, parent_key, array) {
+			if(!parent_id) {
+				array.push(obj);
+				result = true;
+			}
+			else {
+				for (var i=0; i<array.length; i++) {
+					if(array[i].key == parent_key && typeof array[i].children != "undefined") {
+						array[i].children.push(obj);
+						result = true;
+					}
+					if(result) 
+						break;
+					if(array[i].children) 
+						addElement(obj,parent_key,array[i].children);
+				}
+			}
+		};
+		addElement(obj, parent_id, scheduler.matrix[scheduler._mode].y_unit_original);	
+		scheduler.matrix[scheduler._mode].y_unit = scheduler._getArrayToDisplay(scheduler.matrix[scheduler._mode].y_unit_original);
+		scheduler.callEvent("onOptionsLoad",[]);	
+		return result;
+	}	
+};
+
+
+scheduler.openAllSections = function() {
+	if(scheduler._isRender("tree")) 
+		scheduler._toggleFolderDisplay(1, true, true);
+};
+scheduler.closeAllSections = function() {
+	if(scheduler._isRender("tree")) 
+		scheduler._toggleFolderDisplay(1, false, true);
+};
+scheduler.openSection = function(section_id){
+	if(scheduler._isRender("tree")) 
+		scheduler._toggleFolderDisplay(section_id, true);
+};
+scheduler.closeSection = function(section_id){
+	if(scheduler._isRender("tree")) 
+		scheduler._toggleFolderDisplay(section_id, false);
+};

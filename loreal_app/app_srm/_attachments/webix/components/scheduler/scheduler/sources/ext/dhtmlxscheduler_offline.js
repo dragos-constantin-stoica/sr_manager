@@ -1,12 +1,83 @@
 /*
-dhtmlxScheduler v.4.1.0 Stardard
+dhtmlxScheduler v.4.2.0 Stardard
 
 This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
 
 (c) Dinamenta, UAB.
 */
-scheduler.load=function(e,t){var s;return"string"==typeof t&&(this._process=t,s=t,t=arguments[2]),this._load_url=e,this._after_call=t,e.$proxy?void e.load(this,"string"==typeof s?s:null):void this._load(e,this._date)},scheduler._dp_init_backup=scheduler._dp_init,scheduler._dp_init=function(e){e._sendData=function(e,t){if(e){if(!this.callEvent("onBeforeDataSending",t?[t,this.getState(t),e]:[null,null,e]))return!1;if(t&&(this._in_progress[t]=(new Date).valueOf()),this.serverProcessor.$proxy){var s="POST"!=this._tMode?"get":"post",r=[];
-for(var a in e)r.push({id:a,data:e[a],operation:this.getState(a)});return void this.serverProcessor._send(r,s,this)}var i=new dtmlXMLLoaderObject(this.afterUpdate,this,!0),n=this.serverProcessor+(this._user?getUrlSymbol(this.serverProcessor)+["dhx_user="+this._user,"dhx_version="+this.obj.getUserData(0,"version")].join("&"):"");"POST"!=this._tMode?i.loadXML(n+(-1!=n.indexOf("?")?"&":"?")+this.serialize(e,t)):i.loadXML(n,!0,this.serialize(e,t)),this._waitMode++}},e._updatesToParams=function(e){for(var t={},s=0;s<e.length;s++)t[e[s].id]=e[s].data;
-return this.serialize(t)},e._processResult=function(e,t,s){if(200==s.status)t=new dtmlXMLLoaderObject(function(){},this,!0),t.loadXMLString(e),t.xmlDoc=s,this.afterUpdate(this,null,null,null,t);else for(var r in this._in_progress){var a=this.getState(r);this.afterUpdateCallback(r,r,a,null)}},this._dp_init_backup(e)},window.dataProcessor&&(dataProcessor.prototype.init=function(e){this.init_original(e),e._dataprocessor=this,this.setTransactionMode("POST",!0),this.serverProcessor.$proxy||(this.serverProcessor+=(-1!=this.serverProcessor.indexOf("?")?"&":"?")+"editing=true")
-});
-//# sourceMappingURL=../sources/ext/dhtmlxscheduler_offline.js.map
+scheduler.load=function(url,call){
+	var type;
+	if (typeof call == "string"){
+		this._process=call;
+		type = call;
+		call = arguments[2];
+	}
+
+	this._load_url=url;
+	this._after_call=call;
+	if (url.$proxy) {
+		url.load(this, typeof type == "string" ? type : null);
+		return;
+	}
+
+	this._load(url,this._date);
+};
+
+scheduler._dp_init_backup = scheduler._dp_init;
+scheduler._dp_init = function(dp) {
+	dp._sendData = function(a1,rowId){
+    	if (!a1) return; //nothing to send
+		if (!this.callEvent("onBeforeDataSending",rowId?[rowId,this.getState(rowId),a1]:[null, null, a1])) return false;				
+    	if (rowId)
+			this._in_progress[rowId]=(new Date()).valueOf();
+		if (this.serverProcessor.$proxy) {
+			var mode = this._tMode!="POST" ? 'get' : 'post';
+			var to_send = [];
+			for (var i in a1)
+				to_send.push({ id: i, data: a1[i], operation: this.getState(i)});
+			this.serverProcessor._send(to_send, mode, this);
+			return;
+		}
+
+		var a2=new dtmlXMLLoaderObject(this.afterUpdate,this,true);
+		var a3 = this.serverProcessor+(this._user?(getUrlSymbol(this.serverProcessor)+["dhx_user="+this._user,"dhx_version="+this.obj.getUserData(0,"version")].join("&")):"");
+		if (this._tMode!="POST")
+        	a2.loadXML(a3+((a3.indexOf("?")!=-1)?"&":"?")+this.serialize(a1,rowId));
+		else
+        	a2.loadXML(a3,true,this.serialize(a1,rowId));
+		this._waitMode++;
+    };
+	
+	dp._updatesToParams = function(items) {
+		var stack = {};
+		for (var i = 0; i < items.length; i++)
+			stack[items[i].id] = items[i].data;
+		return this.serialize(stack);
+	};
+
+	dp._processResult = function(text, xml, loader) {
+		if (loader.status != 200) {
+			for (var i in this._in_progress) {
+				var state = this.getState(i);
+				this.afterUpdateCallback(i, i, state, null);
+			}
+			return;
+		}
+		xml = new dtmlXMLLoaderObject(function() {},this,true);
+		xml.loadXMLString(text);
+		xml.xmlDoc = loader;
+
+		this.afterUpdate(this, null, null, null, xml);
+	};
+	this._dp_init_backup(dp);
+};
+
+if (window.dataProcessor)
+	dataProcessor.prototype.init=function(obj){
+		this.init_original(obj);
+		obj._dataprocessor=this;
+		
+		this.setTransactionMode("POST",true);
+		if (!this.serverProcessor.$proxy)
+			this.serverProcessor+=(this.serverProcessor.indexOf("?")!=-1?"&":"?")+"editing=true";
+	};

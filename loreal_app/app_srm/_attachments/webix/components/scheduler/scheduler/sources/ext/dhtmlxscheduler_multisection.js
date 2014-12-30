@@ -1,16 +1,289 @@
 /*
-dhtmlxScheduler v.4.1.0 Stardard
+dhtmlxScheduler v.4.2.0 Stardard
 
 This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
 
 (c) Dinamenta, UAB.
 */
-scheduler.config.multisection=!0,scheduler.config.section_delemiter=",",scheduler.attachEvent("onSchedulerReady",function(){var e=scheduler._update_unit_section;scheduler._update_unit_section=function(t){return scheduler._update_sections(t,e)};var t=scheduler._update_timeline_section;scheduler._update_timeline_section=function(e){return scheduler._update_sections(e,t)},scheduler.isMultisectionEvent=function(e){if(e&&this._get_multisection_view()){var t=this._get_event_sections(e);return t.length>1
-}return!1},scheduler._get_event_sections=function(e){var t=this._get_section_property(),s=e[t]||"";return this._parse_event_sections(s)},scheduler._parse_event_sections=function(e){return e instanceof Array?e:e.toString().split(scheduler.config.section_delemiter)},scheduler._register_copies_array=function(e){for(var t=0;t<e.length;t++)this._register_copy(e[t])},scheduler._register_copy=function(e){this._multisection_copies[e.id]||(this._multisection_copies[e.id]={});var t=e[this._get_section_property()],s=this._multisection_copies[e.id];
-s[t]||(s[t]=e)},scheduler._get_copied_event=function(e,t){if(!this._multisection_copies[e])return null;if(this._multisection_copies[e][t])return this._multisection_copies[e][t];var s=this._multisection_copies[e];if(scheduler._drag_event&&scheduler._drag_event._orig_section&&s[scheduler._drag_event._orig_section])return s[scheduler._drag_event._orig_section];var r=1/0,a=null;for(var i in s)s[i]._sorder<r&&(a=s[i],r=s[i]._sorder);return a},scheduler._clear_copied_events=function(){this._multisection_copies={}
-},scheduler._clear_copied_events(),scheduler._split_events=function(e){var t=[],s=this._get_multisection_view(),r=this._get_section_property();if(s)for(var a=0;a<e.length;a++){var i=this._get_event_sections(e[a]);if(i.length>1){for(var n=0;n<i.length;n++)if("undefined"!=typeof s.order[i[n]]){var d=this._lame_copy({},e[a]);d[r]=i[n],t.push(d)}}else t.push(e[a])}else t=e;return t},scheduler._get_multisection_view=function(){return this.config.multisection?scheduler._get_section_view():!1};var s=scheduler.get_visible_events;
-scheduler.get_visible_events=function(){this._clear_copied_events();{var e=s.apply(this,arguments);this._get_multisection_view()}return this._get_multisection_view()&&(e=this._split_events(e),this._register_copies_array(e)),e},scheduler._rendered_events={};var r=scheduler.render_view_data;scheduler.render_view_data=function(e,t){return this._get_multisection_view()&&e&&(e=this._split_events(e),this._restore_render_flags(e)),r.apply(this,[e,t])},scheduler._restore_render_flags=function(e){for(var t=this._get_section_property(),s=0;s<e.length;s++){var r=e[s],a=scheduler._get_copied_event(r.id,r[t]);
-if(a)for(var i in a)0===i.indexOf("_")&&(r[i]=a[i])}},scheduler._update_sections=function(e,t){var s=e.view,r=e.event,a=e.pos;if(scheduler.isMultisectionEvent(r)){if(scheduler._drag_event._orig_section||(scheduler._drag_event._orig_section=a.section),scheduler._drag_event._orig_section!=a.section){var i=s.order[a.section]-s.order[scheduler._drag_event._orig_section];if(i){for(var n=this._get_event_sections(r),d=[],l=!0,o=0;o<n.length;o++){var _=scheduler._shift_sections(s,n[o],i);if(null===_){d=n,l=!1;
-break}d[o]=_}l&&(scheduler._drag_event._orig_section=a.section),r[scheduler._get_section_property()]=d.join(",")}}}else t.apply(scheduler,[e])},scheduler._shift_sections=function(e,t,s){for(var r in e.order)if(e.order[r]-e.order[t]==s)return r;return null};var a=scheduler._get_blocked_zones;scheduler._get_blocked_zones=function(e,t,s,r,i){if(t&&this.config.multisection){t=this._parse_event_sections(t);for(var n=[],d=0;d<t.length;d++)n=n.concat(a.apply(this,[e,t[d],s,r,i]));return n}return a.apply(this,arguments)
-};var i=scheduler._check_sections_collision;scheduler._check_sections_collision=function(e,t){if(this.config.multisection&&this._get_section_view()){e=this._split_events([e]),t=this._split_events([t]);for(var s=!1,r=0,a=e.length;a>r&&!s;r++)for(var n=0,d=t.length;d>n;n++)if(i.apply(this,[e[r],t[n]])){s=!0;break}return s}return i.apply(this,arguments)}});
-//# sourceMappingURL=../sources/ext/dhtmlxscheduler_multisection.js.map
+scheduler.config.multisection = true;
+scheduler.config.multisection_shift_all = true;
+scheduler.config.section_delemiter = ",";
+scheduler.attachEvent("onSchedulerReady", function(){
+
+
+	var old_unit = scheduler._update_unit_section;
+	scheduler._update_unit_section = function(action){
+		return scheduler._update_sections(action, old_unit);
+	};
+	var old_timeline = scheduler._update_timeline_section;
+	scheduler._update_timeline_section =function(action){
+		return scheduler._update_sections(action, old_timeline);
+	};
+
+
+	scheduler.isMultisectionEvent = function(ev){
+		if(ev && this._get_multisection_view()){
+			var units = this._get_event_sections(ev);
+			return (units.length > 1);
+		}
+		return false;
+	};
+
+	scheduler._get_event_sections = function(event){
+		var mapping = this._get_section_property();
+		var units = event[mapping] || "";
+		return this._parse_event_sections(units);
+	};
+	scheduler._parse_event_sections = function(value){
+		if(value instanceof Array){
+			return value;
+		}else{
+			return value.toString().split(scheduler.config.section_delemiter);
+		}
+	};
+
+	scheduler._register_copies_array = function(evs){
+		for(var i=0; i < evs.length; i++)
+			this._register_copy(evs[i]);
+	};
+	scheduler._register_copy = function(copy){
+		if(!this._multisection_copies[copy.id]){
+			this._multisection_copies[copy.id] = {};
+		}
+		var section = copy[this._get_section_property()];
+		var evs = this._multisection_copies[copy.id];
+		if(!evs[section]){
+			evs[section] = copy;
+		}
+	};
+	scheduler._get_copied_event = function(event_id, section){
+		if(!this._multisection_copies[event_id])
+			return null;
+
+		if(this._multisection_copies[event_id][section])
+			return this._multisection_copies[event_id][section];
+
+		var parts = this._multisection_copies[event_id];
+		//multisection event has not been rendered in this section, need retrieve state of one of rendered events
+		if(scheduler._drag_event && scheduler._drag_event._orig_section && parts[scheduler._drag_event._orig_section]){
+			return parts[scheduler._drag_event._orig_section];
+		}else{
+			var min_sorder = Infinity,
+				ev = null;
+			for(var i in parts){
+				if(parts[i]._sorder < min_sorder){
+					ev = parts[i];
+					min_sorder = parts[i]._sorder;
+				}
+			}
+			return ev;
+		}
+	};
+	scheduler._clear_copied_events = function(){
+		this._multisection_copies = {};
+	};
+	scheduler._clear_copied_events();
+
+	scheduler._split_events = function(evs) {
+		var stack = [];
+		var pr = this._get_multisection_view();
+		var mapping = this._get_section_property();
+		if(pr) {
+			for (var i=0; i<evs.length; i++) {
+				var units = this._get_event_sections(evs[i]);
+
+				if(units.length > 1) {
+					for (var j=0; j<units.length; j++) {
+						if(typeof pr.order[units[j]] === "undefined")
+							continue;
+						var ev = this._lame_copy({}, evs[i]);
+						ev[mapping] = units[j];
+						stack.push(ev);
+					}
+				} else {
+					stack.push(evs[i]);
+				}
+
+			}
+		}else{
+			stack = evs;
+		}
+		return stack;
+	};
+
+
+	scheduler._get_multisection_view = function(){
+		if(!this.config.multisection){
+			return false;
+		}else{
+			return scheduler._get_section_view();
+		}
+	};
+
+	var vis_evs = scheduler.get_visible_events;
+	scheduler.get_visible_events = function(only_timed) {
+		this._clear_copied_events();
+		var evs = vis_evs.apply(this,arguments);
+
+		if (this._get_multisection_view()){
+			evs = this._split_events(evs);
+
+			for(var i=0; i <evs.length; i++){
+				if(!this.is_visible_events(evs[i])){
+					evs.splice(i, 1);
+					i--;
+				}
+			}
+
+			this._register_copies_array(evs);
+		}
+
+		return evs;
+	};
+
+	scheduler._rendered_events = {};
+	var old_view_data = scheduler.render_view_data;
+	scheduler.render_view_data = function(evs, hold) {
+		if (this._get_multisection_view() && evs) {
+			//render single event during dnd, restore flags that were calculated during full render
+			evs = this._split_events(evs);
+			this._restore_render_flags(evs);
+		}
+
+		return old_view_data.apply(this,[evs, hold]);
+	};
+	scheduler._restore_render_flags = function(section_evs){
+		var map_to = this._get_section_property();
+		for(var i=0; i < section_evs.length; i++){
+			var ev = section_evs[i];
+			var prev_state = scheduler._get_copied_event(ev.id, ev[map_to]);
+			if(prev_state){
+				for(var p in prev_state){
+					if(p.indexOf("_") === 0){
+						ev[p] = prev_state[p];
+					}
+				}
+			}
+		}
+	};
+	scheduler._update_sections = function(action, def_handler){
+		var view = action.view,
+			event = action.event,
+			pos = action.pos,
+			drag_single = true;
+		//view - timeline or units view object. both stores displayed sections in 'view.order' hash
+		// pos - mouse position, calculated in _mouse_coords method
+		// event - scheduler event
+
+		if(!scheduler.isMultisectionEvent(event)){
+			def_handler.apply(scheduler, [action]);
+		}else{
+			if(!scheduler._drag_event._orig_section){
+				scheduler._drag_event._orig_section = pos.section;
+			}
+
+			if(scheduler._drag_event._orig_section != pos.section){
+				var shift = (view.order[pos.section] - view.order[scheduler._drag_event._orig_section]);
+				if(shift){
+					var sections = this._get_event_sections(event);
+					var new_sections = [];
+					var shifted = true;
+					if(scheduler.config.multisection_shift_all){
+						for(var i=0; i<sections.length; i++){
+							var new_section = scheduler._shift_sections(view, sections[i], shift);
+							if(new_section !== null){
+								new_sections[i] = new_section;
+							}else{
+								new_sections = sections;
+								shifted = false;
+								break;
+							}
+						}
+					}else{
+						for(var i=0; i<sections.length; i++){
+							// if section is occupied return
+							if(sections[i] == pos.section){
+								new_sections = sections;
+								shifted = false;
+								break;
+							}
+							
+							// find and shift only one section
+							if(sections[i] == scheduler._drag_event._orig_section){
+								var new_section = scheduler._shift_sections(view, sections[i], shift);
+								if(new_section !== null){
+									new_sections[i] = new_section;
+								}else{
+									new_sections = sections;
+									shifted = false;
+									break;
+								}
+							}else{
+								new_sections[i] = sections[i];
+							}
+						}
+					}
+					
+					if(shifted)
+						scheduler._drag_event._orig_section = pos.section;
+					
+					event[scheduler._get_section_property()] = new_sections.join(",");
+				}
+
+			}
+		}
+	};
+
+	scheduler._shift_sections = function(matrix, orig_section, shift){
+		for(var i in matrix.order){
+			if(matrix.order[i] - matrix.order[orig_section] == shift){
+				return i;
+			}
+		}
+		return null;
+	};
+
+
+	// limit extension
+
+	var old_get_blocked_zones = scheduler._get_blocked_zones;
+	scheduler._get_blocked_zones = function(timespans, property, day_index, day_value, timespan_type){
+		if(property && this.config.multisection){
+			property = this._parse_event_sections(property);
+			var zones = [];
+			for(var i =0; i < property.length; i++){
+				zones = zones.concat(old_get_blocked_zones.apply(this, [timespans, property[i], day_index, day_value, timespan_type]));
+			}
+			return zones;
+		}else{
+			return old_get_blocked_zones.apply(this, arguments);
+		}
+	};
+
+
+	// collision extension
+	var old_check_secions_collision = scheduler._check_sections_collision;
+
+	scheduler._check_sections_collision = function(a, b){
+		if(this.config.multisection && this._get_section_view()){
+			a = this._split_events([a]);
+			b = this._split_events([b]);
+
+			var collision = false;
+			for(var a_ind = 0, a_len = a.length; a_ind < a_len; a_ind++){
+				if(collision){
+					break;
+				}
+				for(var b_ind = 0, b_len = b.length; b_ind < b_len; b_ind++){
+					if(old_check_secions_collision.apply(this, [a[a_ind], b[b_ind]])){
+						collision = true;
+						break;
+					}
+				}
+			}
+			return collision;
+		}else{
+			return old_check_secions_collision.apply(this, arguments);
+		}
+	};
+});

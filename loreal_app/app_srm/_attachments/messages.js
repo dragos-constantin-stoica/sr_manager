@@ -1,0 +1,4 @@
+//message window
+var messagelist = {
+	
+};

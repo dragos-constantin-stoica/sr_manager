@@ -1,0 +1,4 @@
+//reports window
+var reportswindow = {
+	
+};

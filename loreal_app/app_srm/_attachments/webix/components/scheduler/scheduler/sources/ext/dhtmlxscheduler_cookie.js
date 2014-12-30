@@ -1,10 +1,66 @@
-/*
-dhtmlxScheduler v.4.1.0 Stardard
+(function(){
+	function setCookie(name,cookie_param,value) {
+		var str = name + "=" + value +  (cookie_param?("; "+cookie_param):"");
+		document.cookie = str;
+	}
+	function getCookie(name) {
+		var search = name + "=";
+		if (document.cookie.length > 0) {
+			var offset = document.cookie.indexOf(search);
+			if (offset != -1) {
+				offset += search.length;
+				var end = document.cookie.indexOf(";", offset);
+				if (end == -1)
+					end = document.cookie.length;
+				return document.cookie.substring(offset, end);
+			}
+		}
+		return "";
+	}
+	var first = true;
+	scheduler.attachEvent("onBeforeViewChange",function(om,od,m,d){
+		if (first){
+			first = false;
 
-This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
 
-(c) Dinamenta, UAB.
-*/
-!function(){function e(e,t,i){var s=e+"="+i+(t?"; "+t:"");document.cookie=s}function t(e){var t=e+"=";if(document.cookie.length>0){var i=document.cookie.indexOf(t);if(-1!=i){i+=t.length;var s=document.cookie.indexOf(";",i);return-1==s&&(s=document.cookie.length),document.cookie.substring(i,s)}}return""}var i=!0;scheduler.attachEvent("onBeforeViewChange",function(s,n,a,r){if(i){i=!1;var d=t("scheduler_settings");if(d){scheduler._min_date||(scheduler._min_date=r),d=unescape(d).split("@"),d[0]=this.templates.xml_date(d[0]);
-var o=this.isViewExists(d[1])?d[1]:a,l=isNaN(+d[0])?r:d[0];return window.setTimeout(function(){scheduler.setCurrentView(l,o)},1),!1}}var h=escape(this.templates.xml_format(r||n)+"@"+(a||s));return e("scheduler_settings","expires=Sun, 31 Jan 9999 22:00:00 GMT",h),!0});var s=scheduler._load;scheduler._load=function(){var e=arguments;if(!scheduler._date&&scheduler._load_mode){var t=this;window.setTimeout(function(){s.apply(t,e)},1)}else s.apply(this,e)}}();
-//# sourceMappingURL=../sources/ext/dhtmlxscheduler_cookie.js.map
+
+			var data=getCookie("scheduler_settings");
+			if (data){
+
+				if(!scheduler._min_date){
+					//otherwise scheduler will have incorrect date until timeout
+					//it can cause js error with 'onMouseMove' handler of key_nav.js
+					scheduler._min_date = d;
+				}
+
+				data = unescape(data).split("@");
+				data[0] = this.templates.xml_date(data[0]);
+				var view = this.isViewExists(data[1]) ? data[1] : m,
+					date = !isNaN(+data[0]) ? data[0] : d;
+
+				window.setTimeout(function(){
+					scheduler.setCurrentView(date,view);
+				},1);
+				return false;
+			}
+		}
+		var text = escape(this.templates.xml_format(d||od)+"@"+(m||om));
+		setCookie("scheduler_settings","expires=Sun, 31 Jan 9999 22:00:00 GMT",text);
+		return true;
+	});
+
+
+	// As we are blocking first render above there could be a problem in case of dynamic loading ('from' won't be defined)
+	var old_load = scheduler._load;
+	scheduler._load = function() {
+		var args = arguments;
+		if (!scheduler._date && scheduler._load_mode) {
+			var that = this;
+			window.setTimeout(function() {
+				old_load.apply(that, args);
+			},1);
+		} else {
+			old_load.apply(this, args);
+		}
+	};
+})();

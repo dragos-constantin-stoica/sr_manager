@@ -1,12 +1,124 @@
-/*
-dhtmlxScheduler v.4.1.0 Stardard
+(function(){
 
-This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
+var temp_section;
+var before;
 
-(c) Dinamenta, UAB.
-*/
-!function(){function e(e){var s=scheduler._get_section_view();s&&e&&(t=scheduler.getEvent(e)[scheduler._get_section_property()])}var t,s;scheduler.config.collision_limit=1,scheduler.attachEvent("onBeforeDrag",function(t){return e(t),!0}),scheduler.attachEvent("onBeforeLightbox",function(t){var i=scheduler.getEvent(t);return s=[i.start_date,i.end_date],e(t),!0}),scheduler.attachEvent("onEventChanged",function(e){if(!e||!scheduler.getEvent(e))return!0;var t=scheduler.getEvent(e);if(!scheduler.checkCollision(t)){if(!s)return!1;
-t.start_date=s[0],t.end_date=s[1],t._timed=this.isOneDayEvent(t)}return!0}),scheduler.attachEvent("onBeforeEventChanged",function(e){return scheduler.checkCollision(e)}),scheduler.attachEvent("onEventAdded",function(e,t){var s=scheduler.checkCollision(t);s||scheduler.deleteEvent(e)}),scheduler.attachEvent("onEventSave",function(e,t){if(t=scheduler._lame_clone(t),t.id=e,!t.start_date||!t.end_date){var s=scheduler.getEvent(e);t.start_date=new Date(s.start_date),t.end_date=new Date(s.end_date)}return t.rec_type&&scheduler._roll_back_dates(t),scheduler.checkCollision(t)
-}),scheduler._check_sections_collision=function(e,t){var s=scheduler._get_section_property();return e[s]==t[s]&&e.id!=t.id?!0:!1},scheduler.checkCollision=function(e){var s=[],i=scheduler.config.collision_limit;if(e.rec_type)for(var n=scheduler.getRecDates(e),a=0;a<n.length;a++)for(var r=scheduler.getEvents(n[a].start_date,n[a].end_date),d=0;d<r.length;d++)(r[d].event_pid||r[d].id)!=e.id&&s.push(r[d]);else{s=scheduler.getEvents(e.start_date,e.end_date);for(var o=0;o<s.length;o++)if(s[o].id==e.id){s.splice(o,1);
-break}}var l=scheduler._get_section_view(),h=scheduler._get_section_property(),_=!0;if(l){for(var c=0,o=0;o<s.length;o++)s[o].id!=e.id&&this._check_sections_collision(s[o],e)&&c++;c>=i&&(_=!1)}else s.length>=i&&(_=!1);if(!_){var u=!scheduler.callEvent("onEventCollision",[e,s]);return u||(e[h]=t||e[h]),u}return _}}();
-//# sourceMappingURL=../sources/ext/dhtmlxscheduler_collision.js.map
+scheduler.config.collision_limit = 1;	
+
+function _setTempSection(event_id) { // for custom views (matrix, timeline, units)
+	var checked_mode = scheduler._get_section_view();
+	if(checked_mode && event_id){
+		temp_section = scheduler.getEvent(event_id)[scheduler._get_section_property()];
+	}
+}
+
+scheduler.attachEvent("onBeforeDrag",function(id){
+	_setTempSection(id); 
+	return true;
+});
+scheduler.attachEvent("onBeforeLightbox",function(id){
+	var ev = scheduler.getEvent(id);
+	before = [ev.start_date, ev.end_date];
+	_setTempSection(id);
+	return true;
+});
+scheduler.attachEvent("onEventChanged",function(id){
+	if (!id || !scheduler.getEvent(id)) return true;
+	var ev = scheduler.getEvent(id);
+	if (!scheduler.checkCollision(ev)){
+		if (!before) return false;
+		ev.start_date = before[0];
+		ev.end_date = before[1];
+		ev._timed=this.isOneDayEvent(ev);
+	}
+	return true;
+});
+scheduler.attachEvent("onBeforeEventChanged",function(ev,e,is_new){
+	return scheduler.checkCollision(ev);
+});
+scheduler.attachEvent("onEventAdded",function(id,ev) {
+	var result = scheduler.checkCollision(ev);
+	if (!result)
+		scheduler.deleteEvent(id);
+});
+scheduler.attachEvent("onEventSave",function(id, edited_ev, is_new){
+	edited_ev = scheduler._lame_clone(edited_ev);
+	edited_ev.id = id;
+
+	//lightbox may not have 'time' section
+	if(!(edited_ev.start_date && edited_ev.end_date)){
+		var ev = scheduler.getEvent(id);
+		edited_ev.start_date = new Date(ev.start_date);
+		edited_ev.end_date = new Date(ev.end_date);
+	}
+
+	if(edited_ev.rec_type){
+		scheduler._roll_back_dates(edited_ev);
+	}
+	return scheduler.checkCollision(edited_ev); // in case user creates event on one date but then edited it another
+});
+
+scheduler._check_sections_collision = function(first, second){
+	var map_to = scheduler._get_section_property();
+	if (first[map_to] == second[map_to] && first.id != second.id)
+		return true;
+	return false;
+};
+
+scheduler.checkCollision = function(ev) {
+	var evs = [];
+	var collision_limit = scheduler.config.collision_limit;
+
+	if (ev.rec_type) {
+		var evs_dates = scheduler.getRecDates(ev);
+		for(var k=0; k<evs_dates.length; k++) {
+			var tevs = scheduler.getEvents(evs_dates[k].start_date, evs_dates[k].end_date);
+			for(var j=0; j<tevs.length; j++) { 
+				if ((tevs[j].event_pid || tevs[j].id) != ev.id )
+					evs.push(tevs[j]);
+			}
+		}
+	} else {
+		evs = scheduler.getEvents(ev.start_date, ev.end_date);
+		for (var i=0; i<evs.length; i++) {
+			if (evs[i].id == ev.id) {
+				evs.splice(i,1);
+				break;
+			}
+		}
+	}
+	
+
+	var checked_mode = scheduler._get_section_view();
+	var map_to = scheduler._get_section_property();
+	
+	var single = true;
+	if (checked_mode) { // custom view
+		var count = 0;
+
+		for (var i = 0; i < evs.length; i++){
+			if (evs[i].id != ev.id && this._check_sections_collision(evs[i], ev))
+				count++;
+		}
+
+		if (count >= collision_limit) {
+
+			single = false;
+		}
+	}
+	else {
+		if ( evs.length >= collision_limit )
+			single = false;
+	}
+	if (!single) {
+		var res = !scheduler.callEvent("onEventCollision",[ev,evs]);
+		if (!res) {
+			ev[map_to] = temp_section||ev[map_to]; // from _setTempSection for custom views
+		}
+		return res;
+	}
+	return single;
+	
+};
+
+})();

@@ -1,17 +1,15 @@
-dhtmlxScheduler v.4.0.1 build 130813
+dhtmlxScheduler v.4.2.0 Stardard
 
-This software is allowed to use under GPL or you need to obtain Commercial or Enterise License
-to use it in non-GPL project. Please contact sales@dhtmlx.com for details
+This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
 
-(c) Dinamenta UAB
-
+(c) Dinamenta, UAB.
 
 
 Useful links
 -------------
 
 - Online  documentation
-	http://docs.dhtmlx.com/doku.php?id=dhtmlxscheduler:toc
+	http://docs.dhtmlx.com/scheduler/
 - Downloadable documentation
 	CHM version
 		http://dhtmlx.com/regular/dhtmlxScheduler_docs_chm.zip
@@ -19,7 +17,7 @@ Useful links
 		http://dhtmlx.com/regular/dhtmlxScheduler_docs_html.zip
 - Support forum
 	http://forum.dhtmlx.com/viewforum.php?f=6
--Skin builder
+- Skin builder
 	http://dhtmlx.com/docs/products/dhtmlxScheduler/skinBuilder/index.shtml
 
 

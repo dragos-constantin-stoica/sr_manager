@@ -1,26 +1,407 @@
 /*
-dhtmlxScheduler v.4.1.0 Stardard
+dhtmlxScheduler v.4.2.0 Stardard
 
 This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
 
 (c) Dinamenta, UAB.
 */
-scheduler.attachEvent("onTemplatesReady",function(){this.layers.sort(function(e,t){return e.zIndex-t.zIndex}),scheduler._dp_init=function(e){e._methods=["_set_event_text_style","","changeEventId","deleteEvent"],this.attachEvent("onEventAdded",function(t){!this._loading&&this.validId(t)&&this.getEvent(t)&&this.getEvent(t).layer==e.layer&&e.setUpdated(t,!0,"inserted")}),this.attachEvent("onBeforeEventDelete",function(t){if(this.getEvent(t)&&this.getEvent(t).layer==e.layer){if(!this.validId(t))return;
-var s=e.getState(t);return"inserted"==s||this._new_event?(e.setUpdated(t,!1),!0):"deleted"==s?!1:"true_deleted"==s?!0:(e.setUpdated(t,!0,"deleted"),!1)}return!0}),this.attachEvent("onEventChanged",function(t){!this._loading&&this.validId(t)&&this.getEvent(t)&&this.getEvent(t).layer==e.layer&&e.setUpdated(t,!0,"updated")}),e._getRowData=function(e){var t=this.obj.getEvent(e),s={};for(var i in t)0!==i.indexOf("_")&&(s[i]=t[i]&&t[i].getUTCFullYear?this.obj.templates.xml_format(t[i]):t[i]);return s},e._clearUpdateFlag=function(){},e.attachEvent("insertCallback",scheduler._update_callback),e.attachEvent("updateCallback",scheduler._update_callback),e.attachEvent("deleteCallback",function(e,t){this.obj.setUserData(t,this.action_param,"true_deleted"),this.obj.deleteEvent(t)
-})},function(){var e=function(t){if(null===t||"object"!=typeof t)return t;var s=new t.constructor;for(var i in t)s[i]=e(t[i]);return s};scheduler._dataprocessors=[],scheduler._layers_zindex={};for(var t=0;t<scheduler.layers.length;t++){if(scheduler.config["lightbox_"+scheduler.layers[t].name]={},scheduler.config["lightbox_"+scheduler.layers[t].name].sections=e(scheduler.config.lightbox.sections),scheduler._layers_zindex[scheduler.layers[t].name]=scheduler.config.inital_layer_zindex||5+3*t,scheduler.layers[t].url){var s=new dataProcessor(scheduler.layers[t].url);
-s.layer=scheduler.layers[t].name,scheduler._dataprocessors.push(s),scheduler._dataprocessors[t].init(scheduler)}scheduler.layers[t].isDefault&&(scheduler.defaultLayer=scheduler.layers[t].name)}}(),scheduler.showLayer=function(e){this.toggleLayer(e,!0)},scheduler.hideLayer=function(e){this.toggleLayer(e,!1)},scheduler.toggleLayer=function(e,t){var s=this.getLayer(e);s.visible="undefined"!=typeof t?!!t:!s.visible,this.setCurrentView(this._date,this._mode)},scheduler.getLayer=function(e){var t,s;"string"==typeof e&&(s=e),"object"==typeof e&&(s=e.layer);
-for(var i=0;i<scheduler.layers.length;i++)scheduler.layers[i].name==s&&(t=scheduler.layers[i]);return t},scheduler.attachEvent("onBeforeLightbox",function(e){var t=this.getEvent(e);return this.config.lightbox.sections=this.config["lightbox_"+t.layer].sections,scheduler.resetLightbox(),!0}),scheduler.attachEvent("onClick",function(e){var t=scheduler.getEvent(e);return!scheduler.getLayer(t.layer).noMenu}),scheduler.attachEvent("onEventCollision",function(e,t){var s=this.getLayer(e);if(!s.checkCollision)return!1;
-for(var i=0,r=0;r<t.length;r++)t[r].layer==s.name&&t[r].id!=e.id&&i++;return i>=scheduler.config.collision_limit}),scheduler.addEvent=function(e,t,s,i,r){var a=e;1!=arguments.length&&(a=r||{},a.start_date=e,a.end_date=t,a.text=s,a.id=i,a.layer=this.defaultLayer),a.id=a.id||scheduler.uid(),a.text=a.text||"","string"==typeof a.start_date&&(a.start_date=this.templates.api_date(a.start_date)),"string"==typeof a.end_date&&(a.end_date=this.templates.api_date(a.end_date)),a._timed=this.isOneDayEvent(a);
-var n=!this._events[a.id];this._events[a.id]=a,this.event_updated(a),this._loading||this.callEvent(n?"onEventAdded":"onEventChanged",[a.id,a])},this._evs_layer={};for(var e=0;e<this.layers.length;e++)this._evs_layer[this.layers[e].name]=[];scheduler.addEventNow=function(e,t,s){var i={};"object"==typeof e&&(i=e,e=null);var r=6e4*(this.config.event_duration||this.config.time_step);e||(e=Math.round(scheduler._currentDate().valueOf()/r)*r);var a=new Date(e);if(!t){var n=this.config.first_hour;n>a.getHours()&&(a.setHours(n),e=a.valueOf()),t=e+r
-}i.start_date=i.start_date||a,i.end_date=i.end_date||new Date(t),i.text=i.text||this.locale.labels.new_event,i.id=this._drag_id=this.uid(),i.layer=this.defaultLayer,this._drag_mode="new-size",this._loading=!0,this.addEvent(i),this.callEvent("onEventCreated",[this._drag_id,s]),this._loading=!1,this._drag_event={},this._on_mouse_up(s)},scheduler._t_render_view_data=function(e){if(this.config.multi_day&&!this._table_view){for(var t=[],s=[],i=0;i<e.length;i++)e[i]._timed?t.push(e[i]):s.push(e[i]);this._table_view=!0,this.render_data(s),this._table_view=!1,this.render_data(t)
-}else this.render_data(e)},scheduler.render_view_data=function(){if(this._not_render)return void(this._render_wait=!0);this._render_wait=!1,this.clear_view(),this._evs_layer={};for(var e=0;e<this.layers.length;e++)this._evs_layer[this.layers[e].name]=[];for(var t=this.get_visible_events(),e=0;e<t.length;e++)this._evs_layer[t[e].layer]&&this._evs_layer[t[e].layer].push(t[e]);if("month"==this._mode){for(var s=[],e=0;e<this.layers.length;e++)this.layers[e].visible&&(s=s.concat(this._evs_layer[this.layers[e].name]));
-this._t_render_view_data(s)}else for(var e=0;e<this.layers.length;e++)if(this.layers[e].visible){var i=this._evs_layer[this.layers[e].name];this._t_render_view_data(i)}},scheduler._render_v_bar=function(e,t,s,i,r,a,n,d,l){var o=e.id;-1==n.indexOf("<div class=")&&(n=scheduler.templates["event_header_"+e.layer]?scheduler.templates["event_header_"+e.layer](e.start_date,e.end_date,e):n),-1==d.indexOf("<div class=")&&(d=scheduler.templates["event_text_"+e.layer]?scheduler.templates["event_text_"+e.layer](e.start_date,e.end_date,e):d);
-var h=document.createElement("DIV"),_="dhx_cal_event",c=scheduler.templates["event_class_"+e.layer]?scheduler.templates["event_class_"+e.layer](e.start_date,e.end_date,e):scheduler.templates.event_class(e.start_date,e.end_date,e);c&&(_=_+" "+c);var u='<div event_id="'+o+'" class="'+_+'" style="position:absolute; top:'+s+"px; left:"+t+"px; width:"+(i-4)+"px; height:"+r+"px;"+(a||"")+'">';return u+='<div class="dhx_header" style=" width:'+(i-6)+'px;" >&nbsp;</div>',u+='<div class="dhx_title">'+n+"</div>",u+='<div class="dhx_body" style=" width:'+(i-(this._quirks?4:14))+"px; height:"+(r-(this._quirks?20:30))+'px;">'+d+"</div>",u+='<div class="dhx_footer" style=" width:'+(i-8)+"px;"+(l?" margin-top:-1px;":"")+'" ></div></div>',h.innerHTML=u,h.style.zIndex=100,h.firstChild
-},scheduler.render_event_bar=function(e){var t=this._els.dhx_cal_data[0],s=this._colsS[e._sday],i=this._colsS[e._eday];i==s&&(i=this._colsS[e._eday+1]);var r=this.xy.bar_height,a=this._colsS.heights[e._sweek]+(this._colsS.height?this.xy.month_scale_height+2:2)+e._sorder*r,n=document.createElement("DIV"),d=e._timed?"dhx_cal_event_clear":"dhx_cal_event_line",l=scheduler.templates["event_class_"+e.layer]?scheduler.templates["event_class_"+e.layer](e.start_date,e.end_date,e):scheduler.templates.event_class(e.start_date,e.end_date,e);
-l&&(d=d+" "+l);var o='<div event_id="'+e.id+'" class="'+d+'" style="position:absolute; top:'+a+"px; left:"+s+"px; width:"+(i-s-15)+"px;"+(e._text_style||"")+'">';e._timed&&(o+=scheduler.templates["event_bar_date_"+e.layer]?scheduler.templates["event_bar_date_"+e.layer](e.start_date,e.end_date,e):scheduler.templates.event_bar_date(e.start_date,e.end_date,e)),o+=scheduler.templates["event_bar_text_"+e.layer]?scheduler.templates["event_bar_text_"+e.layer](e.start_date,e.end_date,e):scheduler.templates.event_bar_text(e.start_date,e.end_date,e)+"</div>)",o+="</div>",n.innerHTML=o,this._rendered.push(n.firstChild),t.appendChild(n.firstChild)
-},scheduler.render_event=function(e){var t=scheduler.xy.menu_width;if(scheduler.getLayer(e.layer).noMenu&&(t=0),!(e._sday<0)){var s=scheduler.locate_holder(e._sday);if(s){var i=60*e.start_date.getHours()+e.start_date.getMinutes(),r=60*e.end_date.getHours()+e.end_date.getMinutes()||60*scheduler.config.last_hour,a=Math.round((60*i*1e3-60*this.config.first_hour*60*1e3)*this.config.hour_size_px/36e5)%(24*this.config.hour_size_px)+1,n=Math.max(scheduler.xy.min_event_height,(r-i)*this.config.hour_size_px/60)+1,d=Math.floor((s.clientWidth-t)/e._count),l=e._sorder*d+1;
-e._inner||(d*=e._count-e._sorder);var o=this._render_v_bar(e.id,t+l,a,d,n,e._text_style,scheduler.templates.event_header(e.start_date,e.end_date,e),scheduler.templates.event_text(e.start_date,e.end_date,e));if(this._rendered.push(o),s.appendChild(o),l=l+parseInt(s.style.left,10)+t,a+=this._dy_shift,o.style.zIndex=this._layers_zindex[e.layer],this._edit_id==e.id){o.style.zIndex=parseInt(o.style.zIndex)+1;var h=o.style.zIndex;d=Math.max(d-4,scheduler.xy.editor_width);var o=document.createElement("DIV");
-o.setAttribute("event_id",e.id),this.set_xy(o,d,n-20,l,a+14),o.className="dhx_cal_editor",o.style.zIndex=h;var _=document.createElement("DIV");this.set_xy(_,d-6,n-26),_.style.cssText+=";margin:2px 2px 2px 2px;overflow:hidden;",_.style.zIndex=h,o.appendChild(_),this._els.dhx_cal_data[0].appendChild(o),this._rendered.push(o),_.innerHTML="<textarea class='dhx_cal_editor'>"+e.text+"</textarea>",this._quirks7&&(_.firstChild.style.height=n-12+"px"),this._editor=_.firstChild,this._editor.onkeypress=function(e){if((e||event).shiftKey)return!0;
-var t=(e||event).keyCode;t==scheduler.keys.edit_save&&scheduler.editStop(!0),t==scheduler.keys.edit_cancel&&scheduler.editStop(!1)},this._editor.onselectstart=function(e){return(e||event).cancelBubble=!0,!0},_.firstChild.focus(),this._els.dhx_cal_data[0].scrollLeft=0,_.firstChild.select()}if(this._select_id==e.id){o.style.zIndex=parseInt(o.style.zIndex)+1;for(var c=this.config["icons_"+(this._edit_id==e.id?"edit":"select")],u="",v=0;v<c.length;v++)u+="<div class='dhx_menu_icon "+c[v]+"' title='"+this.locale.labels[c[v]]+"'></div>";
-var g=this._render_v_bar(e.id,l-t+1,a,t,20*c.length+26,"","<div class='dhx_menu_head'></div>",u,!0);g.style.left=l-t+1,g.style.zIndex=o.style.zIndex,this._els.dhx_cal_data[0].appendChild(g),this._rendered.push(g)}}}},scheduler.filter_agenda=function(e,t){var s=scheduler.getLayer(t.layer);return s&&s.visible}});
-//# sourceMappingURL=../sources/ext/dhtmlxscheduler_layer.js.map
+scheduler.attachEvent("onTemplatesReady",function(){
+
+	this.layers.sort(function(a, b){
+		return a.zIndex - b.zIndex;
+	});
+	
+	scheduler._dp_init=function(dp){
+		dp._methods=["_set_event_text_style","","changeEventId","deleteEvent"];
+		
+		this.attachEvent("onEventAdded",function(id){
+			if (!this._loading && this.validId(id) && this.getEvent(id) && this.getEvent(id).layer == dp.layer)
+				dp.setUpdated(id,true,"inserted");
+		});
+		this.attachEvent("onBeforeEventDelete",function(id){
+			if(this.getEvent(id) && this.getEvent(id).layer == dp.layer) {
+				if (!this.validId(id)) return;
+				  var z=dp.getState(id);
+				  
+				if (z=="inserted" || this._new_event) {  dp.setUpdated(id,false);		return true; }
+				if (z=="deleted")  return false;
+				if (z=="true_deleted")  return true;
+				
+				dp.setUpdated(id,true,"deleted");
+					return false;				
+			}
+			else return true;
+		});
+		this.attachEvent("onEventChanged",function(id){
+			if (!this._loading && this.validId(id) && this.getEvent(id) && this.getEvent(id).layer == dp.layer)
+				dp.setUpdated(id,true,"updated");
+		});
+		
+		dp._getRowData=function(id,pref){
+			var ev=this.obj.getEvent(id);
+			var data = {};
+			
+			for (var a in ev){
+				if (a.indexOf("_")===0) continue;
+				if (ev[a] && ev[a].getUTCFullYear) //not very good, but will work
+					data[a] = this.obj.templates.xml_format(ev[a]);
+				else
+					data[a] = ev[a];
+			}
+			return data;
+		};
+		dp._clearUpdateFlag=function(){};
+		
+		dp.attachEvent("insertCallback", scheduler._update_callback);
+		dp.attachEvent("updateCallback", scheduler._update_callback);
+		dp.attachEvent("deleteCallback", function(upd, id) {
+			this.obj.setUserData(id, this.action_param, "true_deleted");
+			this.obj.deleteEvent(id);
+		});	
+	};
+
+	(function() {
+        var _cloneObj = function(obj){
+            if(obj === null || typeof(obj) != 'object')
+                return obj;
+            var temp = new obj.constructor();
+            for(var key in obj)
+                temp[key] = _cloneObj(obj[key]);
+            return temp;
+        };
+        
+		scheduler._dataprocessors = [];
+		scheduler._layers_zindex = {};
+		for(var i=0; i<scheduler.layers.length; i++) {
+			scheduler.config['lightbox_'+scheduler.layers[i].name] = { };
+            scheduler.config['lightbox_'+scheduler.layers[i].name].sections = _cloneObj(scheduler.config.lightbox.sections);
+			scheduler._layers_zindex[scheduler.layers[i].name] = scheduler.config.inital_layer_zindex||5 + i*3;
+			if(scheduler.layers[i].url) {
+				var dp = new dataProcessor(scheduler.layers[i].url);
+				dp.layer = scheduler.layers[i].name;
+				scheduler._dataprocessors.push(dp);
+				scheduler._dataprocessors[i].init(scheduler);
+			}
+			if(scheduler.layers[i].isDefault)
+				scheduler.defaultLayer = scheduler.layers[i].name;
+		}
+	})();
+
+	
+	scheduler.showLayer = function(tlayer) {
+		this.toggleLayer(tlayer, true);
+	};
+	
+	scheduler.hideLayer = function(tlayer) {
+		this.toggleLayer(tlayer, false);
+	};
+	
+	scheduler.toggleLayer = function(tlayer, visible) { // visible is optional
+		var layer = this.getLayer(tlayer);
+		
+		if(typeof visible != 'undefined')
+			layer.visible = !!visible;
+		else
+			layer.visible = !layer.visible;
+			
+		this.setCurrentView(this._date, this._mode);
+	};
+	
+	scheduler.getLayer = function(tlayer) { // either string with layer name or event with layer property
+		var layer,
+			layer_name;
+		if(typeof tlayer == 'string') 
+			layer_name = tlayer;
+		if(typeof tlayer == 'object') 
+			layer_name = tlayer.layer;
+		for (var i=0; i<scheduler.layers.length; i++) {
+			if(scheduler.layers[i].name == layer_name)
+				layer = scheduler.layers[i];
+		}	
+		return layer;
+	};
+
+	scheduler.attachEvent("onBeforeLightbox", function (event_id){
+		var ev = this.getEvent(event_id);
+        this.config.lightbox.sections = this.config['lightbox_'+ev.layer].sections;
+        scheduler.resetLightbox();
+		return true;
+	});
+
+	scheduler.attachEvent("onClick", function (event_id, native_event_object){
+		var ev = scheduler.getEvent(event_id);
+        return !scheduler.getLayer(ev.layer).noMenu;
+	});	
+	
+	scheduler.attachEvent('onEventCollision', function(ev, evs) {
+		var layer = this.getLayer(ev);
+		if(!layer.checkCollision)
+			return false;
+		var count = 0;
+		for(var i = 0; i<evs.length; i++) {
+			if(evs[i].layer == layer.name && evs[i].id != ev.id)
+				count++;
+		}
+		return (count >= scheduler.config.collision_limit);
+	});
+	
+	scheduler.addEvent=function(start_date,end_date,text,id,extra_data){
+		var ev=start_date;
+		if (arguments.length!=1){
+			ev=extra_data||{};
+			ev.start_date=start_date;
+			ev.end_date=end_date;
+			ev.text=text;
+			ev.id=id;
+			ev.layer = this.defaultLayer;
+		}
+		ev.id = ev.id||scheduler.uid();
+		ev.text = ev.text||"";
+		
+		
+		if (typeof ev.start_date == "string")  ev.start_date=this.templates.api_date(ev.start_date);
+		if (typeof ev.end_date == "string")  ev.end_date=this.templates.api_date(ev.end_date);
+		ev._timed=this.isOneDayEvent(ev);
+
+		var is_new=!this._events[ev.id];
+		this._events[ev.id]=ev;
+		this.event_updated(ev);
+		if (!this._loading)
+			this.callEvent(is_new?"onEventAdded":"onEventChanged",[ev.id,ev]);
+	};		
+	
+	this._evs_layer = {};
+	for (var i = 0; i < this.layers.length; i++) { // array in object for each layer
+		this._evs_layer[this.layers[i].name] = [];
+	}		
+	
+	scheduler.addEventNow=function(start,end,e){
+		var base = {};
+		if (typeof start == "object"){
+			base = start;
+			start = null;
+		}
+		
+		var d = (this.config.event_duration||this.config.time_step)*60000;
+		if (!start) start = Math.round((scheduler._currentDate()).valueOf()/d)*d;
+		var start_date = new Date(start);
+		if (!end){
+			var start_hour = this.config.first_hour;
+			if (start_hour > start_date.getHours()){
+				start_date.setHours(start_hour);
+				start = start_date.valueOf();
+			}
+			end = start+d;
+		}
+		
+		
+		base.start_date = base.start_date||start_date;
+		base.end_date =  base.end_date||new Date(end);
+		base.text = base.text||this.locale.labels.new_event;
+		base.id = this._drag_id = this.uid();
+		base.layer = this.defaultLayer;
+		this._drag_mode="new-size";
+		
+		this._loading=true;
+		this.addEvent(base);
+		this.callEvent("onEventCreated",[this._drag_id,e]);
+		this._loading=false;
+		
+		this._drag_event={}; //dummy , to trigger correct event updating logic
+		this._on_mouse_up(e);	
+	};
+	
+	scheduler._t_render_view_data = function(events) { // helper
+		if (this.config.multi_day && !this._table_view) {
+			var tvs = [];
+			var tvd = [];
+			for (var k = 0; k < events.length; k++) {
+				if (events[k]._timed) 
+					tvs.push(events[k]);
+				else 
+					tvd.push(events[k]);
+			}
+			this._table_view = true;
+			this.render_data(tvd);
+			this._table_view = false;
+			this.render_data(tvs);
+		}
+		else 
+			this.render_data(events);		
+	};
+	
+	scheduler.render_view_data = function(){
+		if (this._not_render) {
+			this._render_wait = true;
+			return;
+		}
+		this._render_wait = false;
+		
+		this.clear_view();
+
+		this._evs_layer = {};
+		for (var i = 0; i < this.layers.length; i++) { // array in object for each layer
+			this._evs_layer[this.layers[i].name] = [];
+		}		
+		
+		var evs = this.get_visible_events();
+		for (var i = 0; i < evs.length; i++) { // filling layer arrays with events
+			if(this._evs_layer[evs[i].layer])
+				this._evs_layer[evs[i].layer].push(evs[i]);
+		}			
+
+		if(this._mode == 'month') { // old logic is used
+			var tevs = [];
+			for (var i = 0; i < this.layers.length; i++) {
+				if (this.layers[i].visible) 
+					tevs = tevs.concat(this._evs_layer[this.layers[i].name]);
+			}
+			this._t_render_view_data(tevs);
+		}
+		else { // week, day; should use new logic
+			for (var i = 0; i < this.layers.length; i++) {
+				if (this.layers[i].visible) {
+					var evs_layer = this._evs_layer[this.layers[i].name];
+					this._t_render_view_data(evs_layer);
+				}
+			}
+		}
+	};
+	
+	scheduler._render_v_bar=function(ev,x,y,w,h,style,contentA,contentB,bottom){
+		var id = ev.id;
+		if(contentA.indexOf('<div class=') == -1)
+			contentA = (scheduler.templates['event_header_'+ev.layer])?scheduler.templates['event_header_'+ev.layer](ev.start_date,ev.end_date,ev):contentA;
+		if(contentB.indexOf('<div class=') == -1)	
+		contentB = (scheduler.templates['event_text_'+ev.layer])?scheduler.templates['event_text_'+ev.layer](ev.start_date,ev.end_date,ev):contentB;
+		
+		var d=document.createElement("DIV");
+		
+		
+		var cs = "dhx_cal_event";
+		var cse = (scheduler.templates['event_class_'+ev.layer])?scheduler.templates['event_class_'+ev.layer](ev.start_date,ev.end_date,ev):scheduler.templates.event_class(ev.start_date,ev.end_date,ev);
+		if (cse) cs=cs+" "+cse;
+		
+		var html='<div event_id="'+id+'" class="'+cs+'" style="position:absolute; top:'+y+'px; left:'+x+'px; width:'+(w-4)+'px; height:'+h+'px;'+(style||"")+'">';
+		html+='<div class="dhx_header" style=" width:'+(w-6)+'px;" >&nbsp;</div>';
+		html+='<div class="dhx_title">'+contentA+'</div>';
+		html+='<div class="dhx_body" style=" width:'+(w-(this._quirks?4:14))+'px; height:'+(h-(this._quirks?20:30))+'px;">'+contentB+'</div>';
+		html+='<div class="dhx_footer" style=" width:'+(w-8)+'px;'+(bottom?' margin-top:-1px;':'')+'" ></div></div>';
+		
+		d.innerHTML=html;
+		d.style.zIndex = 100;
+		return d.firstChild;
+	};	
+	
+	scheduler.render_event_bar=function(ev){
+		var parent=this._els["dhx_cal_data"][0];
+
+		var x=this._colsS[ev._sday];
+		var x2=this._colsS[ev._eday];
+		if (x2==x) x2=this._colsS[ev._eday+1];
+		var hb = this.xy.bar_height;
+		
+		var y=this._colsS.heights[ev._sweek]+(this._colsS.height?(this.xy.month_scale_height+2):2)+ev._sorder*hb; 
+				
+		var d=document.createElement("DIV");
+		var cs = ev._timed?"dhx_cal_event_clear":"dhx_cal_event_line";
+		var cse = (scheduler.templates['event_class_'+ev.layer])?scheduler.templates['event_class_'+ev.layer](ev.start_date,ev.end_date,ev):scheduler.templates.event_class(ev.start_date,ev.end_date,ev);
+		if (cse) cs=cs+" "+cse; 
+		
+		var html='<div event_id="'+ev.id+'" class="'+cs+'" style="position:absolute; top:'+y+'px; left:'+x+'px; width:'+(x2-x-15)+'px;'+(ev._text_style||"")+'">';
+			
+		if (ev._timed)
+			html+=(scheduler.templates['event_bar_date_'+ev.layer])?scheduler.templates['event_bar_date_'+ev.layer](ev.start_date,ev.end_date,ev):scheduler.templates.event_bar_date(ev.start_date,ev.end_date,ev);
+		html+=( (scheduler.templates['event_bar_text_'+ev.layer])?scheduler.templates['event_bar_text_'+ev.layer](ev.start_date,ev.end_date,ev):scheduler.templates.event_bar_text(ev.start_date,ev.end_date,ev) + '</div>)');
+		html+='</div>';
+		
+		d.innerHTML=html;
+		
+		this._rendered.push(d.firstChild);
+		parent.appendChild(d.firstChild);
+	};	
+
+	scheduler.render_event=function(ev){
+		var menu = scheduler.xy.menu_width;
+		if(scheduler.getLayer(ev.layer).noMenu) 
+			menu = 0;
+		
+		if (ev._sday<0) return; //can occur in case of recurring event during time shift
+		var parent=scheduler.locate_holder(ev._sday);	
+		if (!parent) return; //attempt to render non-visible event
+		var sm = ev.start_date.getHours()*60+ev.start_date.getMinutes();
+		var em = (ev.end_date.getHours()*60+ev.end_date.getMinutes())||(scheduler.config.last_hour*60);
+		
+		var top = (Math.round((sm*60*1000-this.config.first_hour*60*60*1000)*this.config.hour_size_px/(60*60*1000)))%(this.config.hour_size_px*24)+1; //42px/hour
+		var height = Math.max(scheduler.xy.min_event_height,(em-sm)*this.config.hour_size_px/60)+1; //42px/hour
+		//var height = Math.max(25,Math.round((ev.end_date.valueOf()-ev.start_date.valueOf())*(this.config.hour_size_px+(this._quirks?1:0))/(60*60*1000))); //42px/hour
+		var width=Math.floor((parent.clientWidth-menu)/ev._count);
+		var left=ev._sorder*width+1;
+		if (!ev._inner) width=width*(ev._count-ev._sorder);
+		
+		
+		
+		var d=this._render_v_bar(ev.id,menu+left,top,width,height,ev._text_style,scheduler.templates.event_header(ev.start_date,ev.end_date,ev),scheduler.templates.event_text(ev.start_date,ev.end_date,ev));
+			
+		this._rendered.push(d);
+		parent.appendChild(d);
+		
+		left=left+parseInt(parent.style.left,10)+menu;
+		
+		top+=this._dy_shift; //corrupt top, to include possible multi-day shift
+		d.style.zIndex = this._layers_zindex[ev.layer];
+		
+		if (this._edit_id==ev.id){
+			d.style.zIndex = parseInt(d.style.zIndex)+1; //fix overlapping issue
+			var new_zIndex = d.style.zIndex;
+			width=Math.max(width-4,scheduler.xy.editor_width);
+			var d=document.createElement("DIV");
+			d.setAttribute("event_id",ev.id);
+			this.set_xy(d,width,height-20,left,top+14);
+			d.className="dhx_cal_editor";
+			d.style.zIndex = new_zIndex;
+			var d2=document.createElement("DIV");
+			this.set_xy(d2,width-6,height-26);
+			d2.style.cssText+=";margin:2px 2px 2px 2px;overflow:hidden;";
+			
+			
+			d2.style.zIndex = new_zIndex;
+			d.appendChild(d2);
+			this._els["dhx_cal_data"][0].appendChild(d);
+			this._rendered.push(d);
+		
+			d2.innerHTML="<textarea class='dhx_cal_editor'>"+ev.text+"</textarea>";
+			if (this._quirks7) d2.firstChild.style.height=height-12+"px"; //IEFIX
+			this._editor=d2.firstChild;
+			this._editor.onkeypress=function(e){ 
+				if ((e||event).shiftKey) return true;
+				var code=(e||event).keyCode; 
+				if (code==scheduler.keys.edit_save) scheduler.editStop(true); 
+				if (code==scheduler.keys.edit_cancel) scheduler.editStop(false); 
+			};
+			this._editor.onselectstart=function(e){ (e||event).cancelBubble=true; return true; };
+			d2.firstChild.focus();
+			//IE and opera can add x-scroll during focusing
+			this._els["dhx_cal_data"][0].scrollLeft=0;
+			d2.firstChild.select();
+		}
+		if (this._select_id==ev.id){
+			d.style.zIndex = parseInt(d.style.zIndex)+1; //fix overlapping issue
+			var icons=this.config["icons_"+((this._edit_id==ev.id)?"edit":"select")];
+			var icons_str="";
+			for (var i=0; i<icons.length; i++)
+				icons_str+="<div class='dhx_menu_icon "+icons[i]+"' title='"+this.locale.labels[icons[i]]+"'></div>";
+			var obj = this._render_v_bar(ev.id,left-menu+1,top,menu,icons.length*20+26,"","<div class='dhx_menu_head'></div>",icons_str,true);
+			obj.style.left=left-menu+1;
+			obj.style.zIndex = d.style.zIndex;
+			this._els["dhx_cal_data"][0].appendChild(obj);
+			this._rendered.push(obj);
+		}
+		
+	};
+
+    scheduler.filter_agenda = function(id, event) {
+        var layer = scheduler.getLayer(event.layer);
+        return (layer && layer.visible);
+    };
+});

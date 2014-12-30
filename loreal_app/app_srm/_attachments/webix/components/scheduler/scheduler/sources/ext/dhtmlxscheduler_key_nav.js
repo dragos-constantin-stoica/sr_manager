@@ -1,12 +1,112 @@
 /*
-dhtmlxScheduler v.4.1.0 Stardard
+dhtmlxScheduler v.4.2.0 Stardard
 
 This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
 
 (c) Dinamenta, UAB.
 */
-scheduler._temp_key_scope=function(){function e(e){delete e.rec_type,delete e.rec_pattern,delete e.event_pid,delete e.event_length}scheduler.config.key_nav=!0;var t,s,i=null;scheduler.attachEvent("onMouseMove",function(e,i){t=scheduler.getActionData(i).date,s=scheduler.getActionData(i).section}),scheduler._make_pasted_event=function(i){var r=i.end_date-i.start_date,n=scheduler._lame_copy({},i);if(e(n),n.start_date=new Date(t),n.end_date=new Date(n.start_date.valueOf()+r),s){var a=scheduler.getState().mode,d=null;
-scheduler.matrix[a]?d=scheduler.matrix[a].y_property:scheduler._props[a]&&(d=scheduler._props[a].property),n[d]=s}return n},scheduler._do_paste=function(e,t,s){scheduler.addEvent(t),scheduler.callEvent("onEventPasted",[e,t,s])},scheduler._is_key_nav_active=function(){return this._is_initialized()&&!this._is_lightbox_open()&&this.config.key_nav?!0:!1},dhtmlxEvent(document,_isOpera?"keypress":"keydown",function(e){if(!scheduler._is_key_nav_active())return!0;if(e=e||event,37==e.keyCode||39==e.keyCode){e.cancelBubble=!0;
-var t=scheduler.date.add(scheduler._date,37==e.keyCode?-1:1,scheduler._mode);return scheduler.setCurrentView(t),!0}var s=scheduler._select_id;if(e.ctrlKey&&67==e.keyCode)return s&&(scheduler._buffer_id=s,i=!0,scheduler.callEvent("onEventCopied",[scheduler.getEvent(s)])),!0;if(e.ctrlKey&&88==e.keyCode&&s){i=!1,scheduler._buffer_id=s;var r=scheduler.getEvent(s);scheduler.updateEvent(r.id),scheduler.callEvent("onEventCut",[r])}if(e.ctrlKey&&86==e.keyCode){var r=scheduler.getEvent(scheduler._buffer_id);
-if(r){var n=scheduler._make_pasted_event(r);if(i)n.id=scheduler.uid(),scheduler._do_paste(i,n,r);else{var a=scheduler.callEvent("onBeforeEventChanged",[n,e,!1,r]);a&&(scheduler._do_paste(i,n,r),i=!0)}}return!0}})},scheduler._temp_key_scope();
-//# sourceMappingURL=../sources/ext/dhtmlxscheduler_key_nav.js.map
+//Initial idea and implementation by Steve MC
+scheduler._temp_key_scope = function (){
+
+scheduler.config.key_nav = true;
+
+var date; // used for copy and paste operations
+var section; // used for copy and paste operations
+var isCopy = null;
+
+
+scheduler.attachEvent("onMouseMove", function(id,e){
+	date = scheduler.getActionData(e).date;
+	section = scheduler.getActionData(e).section;
+});
+
+function clear_event_after(ev){
+	delete ev.rec_type; delete ev.rec_pattern;
+	delete ev.event_pid; delete ev.event_length;
+}
+scheduler._make_pasted_event = function(ev){
+	var event_duration = ev.end_date-ev.start_date;
+
+	var copy = scheduler._lame_copy({}, ev);
+	clear_event_after(copy);
+	copy.start_date = new Date(date);
+	copy.end_date = new Date(copy.start_date.valueOf() + event_duration);
+
+	if(section){
+		var property = scheduler._get_section_property();
+		
+		if(scheduler.config.multisection)
+			copy[property] = ev[property]; // save initial set of resources for multisection view
+		else
+			copy[property] = section;
+	}
+	return copy;
+};
+scheduler._do_paste = function(is_copy, modified_ev, original_ev){
+	scheduler.addEvent(modified_ev);
+	scheduler.callEvent("onEventPasted", [is_copy, modified_ev, original_ev]);
+};
+
+scheduler._is_key_nav_active = function(){
+	if(this._is_initialized() && !this._is_lightbox_open() && this.config.key_nav){
+		return true;
+	}
+	return false;
+};
+
+dhtmlxEvent(document,(_isOpera?"keypress":"keydown"),function(e){
+	if(!scheduler._is_key_nav_active()) return true;
+
+	e=e||event;
+
+	if (e.keyCode == 37 || e.keyCode == 39) { // Left, Right arrows
+		e.cancelBubble = true;
+
+		var next = scheduler.date.add(scheduler._date,(e.keyCode == 37 ? -1 : 1 ),scheduler._mode);
+		scheduler.setCurrentView(next);
+		return true;
+	}
+
+	var select_id = scheduler._select_id;
+	if (e.ctrlKey && e.keyCode == 67) {  // CTRL+C
+		if (select_id) {
+			scheduler._buffer_id = select_id;
+			isCopy = true;
+			scheduler.callEvent("onEventCopied", [scheduler.getEvent(select_id)]);
+		}
+		return true;
+	}
+	if (e.ctrlKey && e.keyCode == 88) { // CTRL+X
+		if (select_id) {
+			isCopy = false;
+			scheduler._buffer_id = select_id;
+			var ev = scheduler.getEvent(select_id);
+			scheduler.updateEvent(ev.id);
+			scheduler.callEvent("onEventCut", [ev]);
+		}
+	}
+
+	if (e.ctrlKey && e.keyCode == 86) {  // CTRL+V
+		var ev = scheduler.getEvent(scheduler._buffer_id);
+		if (ev) {
+			var new_ev = scheduler._make_pasted_event(ev);
+			if (isCopy) {
+				new_ev.id = scheduler.uid();
+				scheduler._do_paste(isCopy, new_ev, ev);
+			}
+			else { // cut operation
+				var res = scheduler.callEvent("onBeforeEventChanged",[new_ev, e, false, ev]);
+				if (res) {
+					scheduler._do_paste(isCopy, new_ev, ev);
+					isCopy = true; // switch to copy after first paste operation
+				}
+			}
+
+		}
+		return true;
+	}
+
+});
+
+};
+scheduler._temp_key_scope();

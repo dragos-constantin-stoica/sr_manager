@@ -1,26 +1,481 @@
 /*
-dhtmlxScheduler v.4.1.0 Stardard
+dhtmlxScheduler v.4.2.0 Stardard
 
 This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
 
 (c) Dinamenta, UAB.
 */
-scheduler.templates.calendar_month=scheduler.date.date_to_str("%F %Y"),scheduler.templates.calendar_scale_date=scheduler.date.date_to_str("%D"),scheduler.templates.calendar_date=scheduler.date.date_to_str("%d"),scheduler.config.minicalendar={mark_events:!0},scheduler._synced_minicalendars=[],scheduler.renderCalendar=function(e,t,s){var a=null,r=e.date||scheduler._currentDate();if("string"==typeof r&&(r=this.templates.api_date(r)),t)a=this._render_calendar(t.parentNode,r,e,t),scheduler.unmarkCalendar(a);
-else{var d=e.container,n=e.position;if("string"==typeof d&&(d=document.getElementById(d)),"string"==typeof n&&(n=document.getElementById(n)),n&&"undefined"==typeof n.left){var i=getOffset(n);n={top:i.top+n.offsetHeight,left:i.left}}d||(d=scheduler._get_def_cont(n)),a=this._render_calendar(d,r,e),a.onclick=function(e){e=e||event;var t=e.target||e.srcElement;if(-1!=t.className.indexOf("dhx_month_head")){var s=t.parentNode.className;if(-1==s.indexOf("dhx_after")&&-1==s.indexOf("dhx_before")){var a=scheduler.templates.xml_date(this.getAttribute("date"));
-a.setDate(parseInt(t.innerHTML,10)),scheduler.unmarkCalendar(this),scheduler.markCalendar(this,a,"dhx_calendar_click"),this._last_date=a,this.conf.handler&&this.conf.handler.call(scheduler,a,this)}}}}if(scheduler.config.minicalendar.mark_events)for(var l=scheduler.date.month_start(r),o=scheduler.date.add(l,1,"month"),_=this.getEvents(l,o),h=this["filter_"+this._mode],c=0;c<_.length;c++){var u=_[c];if(!h||h(u.id,u)){var f=u.start_date;for(f.valueOf()<l.valueOf()&&(f=l),f=scheduler.date.date_part(new Date(f.valueOf()));f<u.end_date&&(this.markCalendar(a,f,"dhx_year_event"),f=this.date.add(f,1,"day"),!(f.valueOf()>=o.valueOf())););}}return this._markCalendarCurrentDate(a),a.conf=e,e.sync&&!s&&this._synced_minicalendars.push(a),a
-},scheduler._get_def_cont=function(e){return this._def_count||(this._def_count=document.createElement("DIV"),this._def_count.className="dhx_minical_popup",this._def_count.onclick=function(e){(e||event).cancelBubble=!0},document.body.appendChild(this._def_count)),this._def_count.style.left=e.left+"px",this._def_count.style.top=e.top+"px",this._def_count._created=new Date,this._def_count},scheduler._locateCalendar=function(e,t){if("string"==typeof t&&(t=scheduler.templates.api_date(t)),+t>+e._max_date||+t<+e._min_date)return null;
-for(var s=e.childNodes[2].childNodes[0],a=0,r=new Date(e._min_date);+this.date.add(r,1,"week")<=+t;)r=this.date.add(r,1,"week"),a++;var d=scheduler.config.start_on_monday,n=(t.getDay()||(d?7:0))-(d?1:0);return s.rows[a].cells[n].firstChild},scheduler.markCalendar=function(e,t,s){var a=this._locateCalendar(e,t);a&&(a.className+=" "+s)},scheduler.unmarkCalendar=function(e,t,s){if(t=t||e._last_date,s=s||"dhx_calendar_click",t){var a=this._locateCalendar(e,t);a&&(a.className=(a.className||"").replace(RegExp(s,"g")))
-}},scheduler._week_template=function(e){for(var t=e||250,s=0,a=document.createElement("div"),r=this.date.week_start(scheduler._currentDate()),d=0;7>d;d++)this._cols[d]=Math.floor(t/(7-d)),this._render_x_header(d,s,r,a),r=this.date.add(r,1,"day"),t-=this._cols[d],s+=this._cols[d];return a.lastChild.className+=" dhx_scale_bar_last",a},scheduler.updateCalendar=function(e,t){e.conf.date=t,this.renderCalendar(e.conf,e,!0)},scheduler._mini_cal_arrows=["&nbsp","&nbsp"],scheduler._render_calendar=function(e,t,s,a){var r=scheduler.templates,d=this._cols;
-this._cols=[];var n=this._mode;this._mode="calendar";var i=this._colsS;this._colsS={height:0};var l=new Date(this._min_date),o=new Date(this._max_date),_=new Date(scheduler._date),h=r.month_day,c=this._ignores_detected;this._ignores_detected=0,r.month_day=r.calendar_date,t=this.date.month_start(t);var u,f=this._week_template(e.offsetWidth-1-this.config.minicalendar.padding);if(a?u=a:(u=document.createElement("DIV"),u.className="dhx_cal_container dhx_mini_calendar"),u.setAttribute("date",this.templates.xml_format(t)),u.innerHTML="<div class='dhx_year_month'></div><div class='dhx_year_week'>"+f.innerHTML+"</div><div class='dhx_year_body'></div>",u.childNodes[0].innerHTML=this.templates.calendar_month(t),s.navigation)for(var v=function(e,t){var s=scheduler.date.add(e._date,t,"month");
-scheduler.updateCalendar(e,s),scheduler._date.getMonth()==e._date.getMonth()&&scheduler._date.getFullYear()==e._date.getFullYear()&&scheduler._markCalendarCurrentDate(e)},g=["dhx_cal_prev_button","dhx_cal_next_button"],m=["left:1px;top:2px;position:absolute;","left:auto; right:1px;top:2px;position:absolute;"],p=[-1,1],x=function(e){return function(){if(s.sync)for(var t=scheduler._synced_minicalendars,a=0;a<t.length;a++)v(t[a],e);else v(u,e)}},y=0;2>y;y++){var b=document.createElement("DIV");b.className=g[y],b.style.cssText=m[y],b.innerHTML=this._mini_cal_arrows[y],u.firstChild.appendChild(b),b.onclick=x(p[y])
-}u._date=new Date(t),u.week_start=(t.getDay()-(this.config.start_on_monday?1:0)+7)%7;var w=u._min_date=this.date.week_start(t);u._max_date=this.date.add(u._min_date,6,"week"),this._reset_month_scale(u.childNodes[2],t,w);for(var E=u.childNodes[2].firstChild.rows,k=E.length;6>k;k++){var D=E[E.length-1];E[0].parentNode.appendChild(D.cloneNode(!0));var M=parseInt(D.childNodes[D.childNodes.length-1].childNodes[0].innerHTML);M=10>M?M:0;for(var N=0;N<E[k].childNodes.length;N++)E[k].childNodes[N].className="dhx_after",E[k].childNodes[N].childNodes[0].innerHTML=scheduler.date.to_fixed(++M)
-}return a||e.appendChild(u),u.childNodes[1].style.height=u.childNodes[1].childNodes[0].offsetHeight-1+"px",this._cols=d,this._mode=n,this._colsS=i,this._min_date=l,this._max_date=o,scheduler._date=_,r.month_day=h,this._ignores_detected=c,u},scheduler.destroyCalendar=function(e,t){!e&&this._def_count&&this._def_count.firstChild&&(t||(new Date).valueOf()-this._def_count._created.valueOf()>500)&&(e=this._def_count.firstChild),e&&(e.onclick=null,e.innerHTML="",e.parentNode&&e.parentNode.removeChild(e),this._def_count&&(this._def_count.style.top="-1000px"))
-},scheduler.isCalendarVisible=function(){return this._def_count&&parseInt(this._def_count.style.top,10)>0?this._def_count:!1},scheduler._attach_minical_events=function(){dhtmlxEvent(document.body,"click",function(){scheduler.destroyCalendar()}),scheduler._attach_minical_events=function(){}},scheduler.attachEvent("onTemplatesReady",function(){scheduler._attach_minical_events()}),scheduler.templates.calendar_time=scheduler.date.date_to_str("%d-%m-%Y"),scheduler.form_blocks.calendar_time={render:function(){var e="<input class='dhx_readonly' type='text' readonly='true'>",t=scheduler.config,s=this.date.date_part(scheduler._currentDate()),a=1440,r=0;
-t.limit_time_select&&(r=60*t.first_hour,a=60*t.last_hour+1),s.setHours(r/60),e+=" <select>";for(var d=r;a>d;d+=1*this.config.time_step){var n=this.templates.time_picker(s);e+="<option value='"+d+"'>"+n+"</option>",s=this.date.add(s,this.config.time_step,"minute")}e+="</select>";scheduler.config.full_day;return"<div style='height:30px;padding-top:0; font-size:inherit;' class='dhx_section_time'>"+e+"<span style='font-weight:normal; font-size:10pt;'> &nbsp;&ndash;&nbsp; </span>"+e+"</div>"},set_value:function(e,t,s){function a(e,t,s){l(e,t,s),e.value=scheduler.templates.calendar_time(t),e._date=scheduler.date.date_part(new Date(t))
-}var r,d,n=e.getElementsByTagName("input"),i=e.getElementsByTagName("select"),l=function(e,t,s){e.onclick=function(){scheduler.destroyCalendar(null,!0),scheduler.renderCalendar({position:e,date:new Date(this._date),navigation:!0,handler:function(t){e.value=scheduler.templates.calendar_time(t),e._date=new Date(t),scheduler.destroyCalendar(),scheduler.config.event_duration&&scheduler.config.auto_end_date&&0===s&&c()}})}};if(scheduler.config.full_day){if(!e._full_day){var o="<label class='dhx_fullday'><input type='checkbox' name='full_day' value='true'> "+scheduler.locale.labels.full_day+"&nbsp;</label></input>";
-scheduler.config.wide_form||(o=e.previousSibling.innerHTML+o),e.previousSibling.innerHTML=o,e._full_day=!0}var _=e.previousSibling.getElementsByTagName("input")[0],h=0===scheduler.date.time_part(s.start_date)&&0===scheduler.date.time_part(s.end_date);_.checked=h,i[0].disabled=_.checked,i[1].disabled=_.checked,_.onclick=function(){if(_.checked===!0){var t={};scheduler.form_blocks.calendar_time.get_value(e,t),r=scheduler.date.date_part(t.start_date),d=scheduler.date.date_part(t.end_date),(+d==+r||+d>=+r&&(0!==s.end_date.getHours()||0!==s.end_date.getMinutes()))&&(d=scheduler.date.add(d,1,"day"))
-}var l=r||s.start_date,o=d||s.end_date;a(n[0],l),a(n[1],o),i[0].value=60*l.getHours()+l.getMinutes(),i[1].value=60*o.getHours()+o.getMinutes(),i[0].disabled=_.checked,i[1].disabled=_.checked}}if(scheduler.config.event_duration&&scheduler.config.auto_end_date){var c=function(){r=scheduler.date.add(n[0]._date,i[0].value,"minute"),d=new Date(r.getTime()+60*scheduler.config.event_duration*1e3),n[1].value=scheduler.templates.calendar_time(d),n[1]._date=scheduler.date.date_part(new Date(d)),i[1].value=60*d.getHours()+d.getMinutes()
-};i[0].onchange=c}a(n[0],s.start_date,0),a(n[1],s.end_date,1),l=function(){},i[0].value=60*s.start_date.getHours()+s.start_date.getMinutes(),i[1].value=60*s.end_date.getHours()+s.end_date.getMinutes()},get_value:function(e,t){var s=e.getElementsByTagName("input"),a=e.getElementsByTagName("select");return t.start_date=scheduler.date.add(s[0]._date,a[0].value,"minute"),t.end_date=scheduler.date.add(s[1]._date,a[1].value,"minute"),t.end_date<=t.start_date&&(t.end_date=scheduler.date.add(t.start_date,scheduler.config.time_step,"minute")),{start_date:new Date(t.start_date),end_date:new Date(t.end_date)}
-},focus:function(){}},scheduler.linkCalendar=function(e,t){var s=function(){var s=scheduler._date,a=new Date(s.valueOf());return t&&(a=t(a)),a.setDate(1),scheduler.updateCalendar(e,a),!0};scheduler.attachEvent("onViewChange",s),scheduler.attachEvent("onXLE",s),scheduler.attachEvent("onEventAdded",s),scheduler.attachEvent("onEventChanged",s),scheduler.attachEvent("onAfterEventDelete",s),s()},scheduler._markCalendarCurrentDate=function(e){var t=scheduler._date,s=scheduler._mode,a=scheduler.date.month_start(new Date(e._date)),r=scheduler.date.add(a,1,"month");
-if("day"==s||this._props&&this._props[s])a.valueOf()<=t.valueOf()&&r>t&&scheduler.markCalendar(e,t,"dhx_calendar_click");else if("week"==s)for(var d=scheduler.date.week_start(new Date(t.valueOf())),n=0;7>n;n++)a.valueOf()<=d.valueOf()&&r>d&&scheduler.markCalendar(e,d,"dhx_calendar_click"),d=scheduler.date.add(d,1,"day")},scheduler.attachEvent("onEventCancel",function(){scheduler.destroyCalendar(null,!0)});
-//# sourceMappingURL=../sources/ext/dhtmlxscheduler_minical.js.map
+scheduler.templates.calendar_month = scheduler.date.date_to_str("%F %Y");
+scheduler.templates.calendar_scale_date = scheduler.date.date_to_str("%D");
+scheduler.templates.calendar_date = scheduler.date.date_to_str("%d");
+scheduler.config.minicalendar = {
+	mark_events: true
+};
+scheduler._synced_minicalendars = [];
+scheduler.renderCalendar = function(obj, _prev, is_refresh) {
+	var cal = null;
+	var date = obj.date || (scheduler._currentDate());
+	if (typeof date == "string")
+		date = this.templates.api_date(date);
+
+	if (!_prev) {
+		var cont = obj.container;
+		var pos = obj.position;
+
+		if (typeof cont == "string")
+			cont = document.getElementById(cont);
+
+		if (typeof pos == "string")
+			pos = document.getElementById(pos);
+		if (pos && (typeof pos.left == "undefined")) {
+			var tpos = getOffset(pos);
+			pos = {
+				top: tpos.top + pos.offsetHeight,
+				left: tpos.left
+			};
+		}
+		if (!cont)
+			cont = scheduler._get_def_cont(pos);
+
+		cal = this._render_calendar(cont, date, obj);
+		cal.onclick = function(e) {
+			e = e || event;
+			var src = e.target || e.srcElement;
+
+			if (src.className.indexOf("dhx_month_head") != -1) {
+				var pname = src.parentNode.className;
+				if (pname.indexOf("dhx_after") == -1 && pname.indexOf("dhx_before") == -1) {
+					var newdate = scheduler.templates.xml_date(this.getAttribute("date"));
+					newdate.setDate(parseInt(src.innerHTML, 10));
+					scheduler.unmarkCalendar(this);
+					scheduler.markCalendar(this, newdate, "dhx_calendar_click");
+					this._last_date = newdate;
+					if (this.conf.handler) this.conf.handler.call(scheduler, newdate, this);
+				}
+			}
+		};
+	} else {
+		cal = this._render_calendar(_prev.parentNode, date, obj, _prev);
+		scheduler.unmarkCalendar(cal);
+	}
+
+	if (scheduler.config.minicalendar.mark_events) {
+		var start = scheduler.date.month_start(date);
+		var end = scheduler.date.add(start, 1, "month");
+		var evs = this.getEvents(start, end);
+		var filter = this["filter_" + this._mode];
+		for (var i = 0; i < evs.length; i++) {
+			var ev = evs[i];
+			if (filter && !filter(ev.id, ev))
+				continue;
+			var d = ev.start_date;
+			if (d.valueOf() < start.valueOf())
+				d = start;
+			d = scheduler.date.date_part(new Date(d.valueOf()));
+			while (d < ev.end_date) {
+				this.markCalendar(cal, d, "dhx_year_event");
+				d = this.date.add(d, 1, "day");
+				if (d.valueOf() >= end.valueOf())
+					break;
+			}
+		}
+	}
+
+	this._markCalendarCurrentDate(cal);
+
+	cal.conf = obj;
+	if (obj.sync && !is_refresh)
+		this._synced_minicalendars.push(cal);
+
+	if(!cal.conf._on_xle_handler){
+		cal.conf._on_xle_handler = scheduler.attachEvent("onXLE", function refreshOnLoad(){
+			scheduler.updateCalendar(cal, cal.conf.date);
+		});
+	}
+
+	return cal;
+};
+scheduler._get_def_cont = function(pos) {
+	if (!this._def_count) {
+		this._def_count = document.createElement("DIV");
+		this._def_count.className = "dhx_minical_popup";
+		this._def_count.onclick = function(e) { (e || event).cancelBubble = true; };
+		document.body.appendChild(this._def_count);
+	}
+
+	this._def_count.style.left = pos.left + "px";
+	this._def_count.style.top = pos.top + "px";
+	this._def_count._created = new Date();
+
+	return this._def_count;
+};
+scheduler._locateCalendar = function(cal, date) {
+	if (typeof date == "string")
+		date = scheduler.templates.api_date(date);
+
+	if(+date > +cal._max_date || +date < +cal._min_date)
+		return null;
+
+	var table = cal.childNodes[2].childNodes[0];
+
+	var weekNum = 0;
+	var dat = new Date(cal._min_date);
+	while(+this.date.add(dat, 1, "week") <= +date){
+		dat = this.date.add(dat, 1, "week");
+		weekNum++;
+	}
+
+	var sm = scheduler.config.start_on_monday;
+	var day = (date.getDay() || (sm ? 7 : 0)) - (sm ? 1 : 0);
+	return table.rows[weekNum].cells[day].firstChild;
+};
+scheduler.markCalendar = function(cal, date, css) {
+	var div = this._locateCalendar(cal, date);
+	if(!div)
+		return;
+
+	div.className += " " + css;
+};
+scheduler.unmarkCalendar = function(cal, date, css) {
+	date = date || cal._last_date;
+	css = css || "dhx_calendar_click";
+	if (!date) return;
+	var el = this._locateCalendar(cal, date);
+	if(!el)
+		return;
+	el.className = (el.className || "").replace(RegExp(css, "g"));
+};
+scheduler._week_template = function(width) {
+	var summ = (width || 250);
+	var left = 0;
+
+	var week_template = document.createElement("div");
+	var dummy_date = this.date.week_start(scheduler._currentDate());
+	for (var i = 0; i < 7; i++) {
+		this._cols[i] = Math.floor(summ / (7 - i));
+		this._render_x_header(i, left, dummy_date, week_template);
+		dummy_date = this.date.add(dummy_date, 1, "day");
+		summ -= this._cols[i];
+		left += this._cols[i];
+	}
+	week_template.lastChild.className += " dhx_scale_bar_last";
+	return week_template;
+};
+scheduler.updateCalendar = function(obj, sd) {
+	obj.conf.date = sd;
+	this.renderCalendar(obj.conf, obj, true);
+};
+scheduler._mini_cal_arrows = ["&nbsp", "&nbsp"];
+scheduler._render_calendar = function(obj, sd, conf, previous) {
+	/*store*/
+	var ts = scheduler.templates;
+	var temp = this._cols;
+	this._cols = [];
+	var temp2 = this._mode;
+	this._mode = "calendar";
+	var temp3 = this._colsS;
+	this._colsS = {height: 0};
+	var temp4 = new Date(this._min_date);
+	var temp5 = new Date(this._max_date);
+	var temp6 = new Date(scheduler._date);
+	var temp7 = ts.month_day;
+	var temp8 = this._ignores_detected; this._ignores_detected = 0;
+	ts.month_day = ts.calendar_date;
+
+	sd = this.date.month_start(sd);
+	var week_template = this._week_template(obj.offsetWidth - 1 - this.config.minicalendar.padding );
+
+	var d;
+	if (previous)
+		d = previous; else {
+		d = document.createElement("DIV");
+		d.className = "dhx_cal_container dhx_mini_calendar";
+	}
+	d.setAttribute("date", this.templates.xml_format(sd));
+	d.innerHTML = "<div class='dhx_year_month'></div><div class='dhx_year_week'>" + week_template.innerHTML + "</div><div class='dhx_year_body'></div>";
+
+	d.childNodes[0].innerHTML = this.templates.calendar_month(sd);
+	if (conf.navigation) {
+		var move_minicalendar_date = function(calendar, diff) {
+			var date = scheduler.date.add(calendar._date, diff, "month");
+			scheduler.updateCalendar(calendar, date);
+			if (scheduler._date.getMonth() == calendar._date.getMonth() && scheduler._date.getFullYear() == calendar._date.getFullYear()) {
+				scheduler._markCalendarCurrentDate(calendar);
+			}
+		};
+
+		var css_classnames = ["dhx_cal_prev_button", "dhx_cal_next_button"];
+		var css_texts = ["left:1px;top:2px;position:absolute;", "left:auto; right:1px;top:2px;position:absolute;"];
+		var diffs = [-1, 1];
+		var handler = function(diff) {
+			return function() {
+				if (conf.sync) {
+					var calendars = scheduler._synced_minicalendars;
+					for (var k = 0; k < calendars.length; k++) {
+						move_minicalendar_date(calendars[k], diff);
+					}
+				} else {
+					move_minicalendar_date(d, diff);
+				}
+			};
+		};
+		for (var j = 0; j < 2; j++) {
+			var arrow = document.createElement("DIV");
+			//var diff = diffs[j];
+			arrow.className = css_classnames[j];
+			arrow.style.cssText = css_texts[j];
+			arrow.innerHTML = this._mini_cal_arrows[j];
+			d.firstChild.appendChild(arrow);
+			arrow.onclick = handler(diffs[j]);
+		}
+	}
+	d._date = new Date(sd);
+
+	d.week_start = (sd.getDay() - (this.config.start_on_monday ? 1 : 0) + 7) % 7;
+
+	var dd = d._min_date = this.date.week_start(sd);
+	d._max_date = this.date.add(d._min_date, 6, "week");
+
+	this._reset_month_scale(d.childNodes[2], sd, dd);
+
+	var r = d.childNodes[2].firstChild.rows;
+	for (var k = r.length; k < 6; k++) {
+		var last_row = r[r.length - 1];
+		r[0].parentNode.appendChild(last_row.cloneNode(true));
+		var last_day_number = parseInt(last_row.childNodes[last_row.childNodes.length - 1].childNodes[0].innerHTML);
+		last_day_number = (last_day_number < 10) ? last_day_number : 0; // previous week could end on 28-31, so we should start with 0
+		for (var ri = 0; ri < r[k].childNodes.length; ri++) {
+			r[k].childNodes[ri].className = "dhx_after";
+			r[k].childNodes[ri].childNodes[0].innerHTML = scheduler.date.to_fixed(++last_day_number);
+		}
+	}
+
+	if (!previous)
+		obj.appendChild(d);
+
+	d.childNodes[1].style.height = (d.childNodes[1].childNodes[0].offsetHeight - 1) + "px"; // dhx_year_week should have height property so that day dates would get correct position. dhx_year_week height = height of it's child (with the day name)
+
+	/*restore*/
+	this._cols = temp;
+	this._mode = temp2;
+	this._colsS = temp3;
+	this._min_date = temp4;
+	this._max_date = temp5;
+	scheduler._date = temp6;
+	ts.month_day = temp7;
+	this._ignores_detected = temp8;
+	return d;
+};
+scheduler.destroyCalendar = function(cal, force) {
+	if (!cal && this._def_count && this._def_count.firstChild) {
+		if (force || (new Date()).valueOf() - this._def_count._created.valueOf() > 500)
+			cal = this._def_count.firstChild;
+	}
+	if (!cal) return;
+	cal.onclick = null;
+	cal.innerHTML = "";
+	if (cal.parentNode)
+		cal.parentNode.removeChild(cal);
+	if (this._def_count)
+		this._def_count.style.top = "-1000px";
+
+	if(cal.conf && cal.conf._on_xle_handler)
+		scheduler.detachEvent(cal.conf._on_xle_handler);
+};
+scheduler.isCalendarVisible = function() {
+	if (this._def_count && parseInt(this._def_count.style.top, 10) > 0)
+		return this._def_count;
+	return false;
+};
+
+scheduler._attach_minical_events = function(){
+	dhtmlxEvent(document.body, "click", function() { scheduler.destroyCalendar(); });
+	scheduler._attach_minical_events = function(){};
+};
+
+scheduler.attachEvent("onTemplatesReady", function() {
+	scheduler._attach_minical_events();
+});
+
+scheduler.templates.calendar_time = scheduler.date.date_to_str("%d-%m-%Y");
+
+scheduler.form_blocks.calendar_time = {
+	render: function() {
+		var html = "<input class='dhx_readonly' type='text' readonly='true'>";
+
+		var cfg = scheduler.config;
+		var dt = this.date.date_part(scheduler._currentDate());
+
+		var last = 24 * 60, first = 0;
+		if (cfg.limit_time_select) {
+			first = 60 * cfg.first_hour;
+			last = 60 * cfg.last_hour + 1;  // to include "17:00" option if time select is limited
+		}
+		dt.setHours(first / 60);
+
+		html += " <select>";
+		for (var i = first; i < last; i += this.config.time_step * 1) { // `<` to exclude last "00:00" option
+			var time = this.templates.time_picker(dt);
+			html += "<option value='" + i + "'>" + time + "</option>";
+			dt = this.date.add(dt, this.config.time_step, "minute");
+		}
+		html += "</select>";
+
+		var full_day = scheduler.config.full_day;
+
+		return "<div style='height:30px;padding-top:0; font-size:inherit;' class='dhx_section_time'>" + html + "<span style='font-weight:normal; font-size:10pt;'> &nbsp;&ndash;&nbsp; </span>" + html + "</div>";
+	},
+	set_value: function(node, value, ev) {
+
+		var inputs = node.getElementsByTagName("input");
+		var selects = node.getElementsByTagName("select");
+		var start_date,
+			end_date;
+
+		var _init_once = function(inp, date, number) {
+			inp.onclick = function() {
+				scheduler.destroyCalendar(null, true);
+				scheduler.renderCalendar({
+					position: inp,
+					date: new Date(this._date),
+					navigation: true,
+					handler: function(new_date) {
+						inp.value = scheduler.templates.calendar_time(new_date);
+						inp._date = new Date(new_date);
+						scheduler.destroyCalendar();
+						if (scheduler.config.event_duration && scheduler.config.auto_end_date && number === 0) { //first element = start date
+							_update_minical_select();
+						}
+					}
+				});
+			};
+		};
+
+		if (scheduler.config.full_day) {
+			if (!node._full_day) {
+				var html = "<label class='dhx_fullday'><input type='checkbox' name='full_day' value='true'> " + scheduler.locale.labels.full_day + "&nbsp;</label></input>";
+				if (!scheduler.config.wide_form)
+					html = node.previousSibling.innerHTML + html;
+				node.previousSibling.innerHTML = html;
+				node._full_day = true;
+			}
+			var input = node.previousSibling.getElementsByTagName("input")[0];
+
+			var isFulldayEvent = (scheduler.date.time_part(ev.start_date) === 0 && scheduler.date.time_part(ev.end_date) === 0);
+			input.checked = isFulldayEvent;
+
+			selects[0].disabled = input.checked;
+			selects[1].disabled = input.checked;
+
+			input.onclick = function() {
+				if (input.checked === true) {
+					var obj = {};
+					scheduler.form_blocks.calendar_time.get_value(node, obj);
+
+					start_date = scheduler.date.date_part(obj.start_date);
+					end_date = scheduler.date.date_part(obj.end_date);
+
+					if (+end_date == +start_date || (+end_date >= +start_date && (ev.end_date.getHours() !== 0 || ev.end_date.getMinutes() !== 0)))
+						end_date = scheduler.date.add(end_date, 1, "day");
+				}
+
+				var start = start_date || ev.start_date;
+				var end = end_date || ev.end_date;
+				_attach_action(inputs[0], start);
+				_attach_action(inputs[1], end);
+				selects[0].value = start.getHours() * 60 + start.getMinutes();
+				selects[1].value = end.getHours() * 60 + end.getMinutes();
+
+				selects[0].disabled = input.checked;
+				selects[1].disabled = input.checked;
+
+			};
+		}
+
+		if (scheduler.config.event_duration && scheduler.config.auto_end_date) {
+
+			var _update_minical_select = function () {
+				start_date = scheduler.date.add(inputs[0]._date, selects[0].value, "minute");
+				end_date = new Date(start_date.getTime() + (scheduler.config.event_duration * 60 * 1000));
+
+				inputs[1].value = scheduler.templates.calendar_time(end_date);
+				inputs[1]._date = scheduler.date.date_part(new Date(end_date));
+
+				selects[1].value = end_date.getHours() * 60 + end_date.getMinutes();
+			};
+
+			selects[0].onchange = _update_minical_select; // only update on first select should trigger update so user could define other end date if he wishes too
+		}
+
+		function _attach_action(inp, date, number) {
+			_init_once(inp, date, number);
+			inp.value = scheduler.templates.calendar_time(date);
+			inp._date = scheduler.date.date_part(new Date(date));
+		}
+
+		_attach_action(inputs[0], ev.start_date, 0);
+		_attach_action(inputs[1], ev.end_date, 1);
+		_init_once = function() {};
+
+		selects[0].value = ev.start_date.getHours() * 60 + ev.start_date.getMinutes();
+		selects[1].value = ev.end_date.getHours() * 60 + ev.end_date.getMinutes();
+
+	},
+	get_value: function(node, ev) {
+		var inputs = node.getElementsByTagName("input");
+		var selects = node.getElementsByTagName("select");
+
+		ev.start_date = scheduler.date.add(inputs[0]._date, selects[0].value, "minute");
+		ev.end_date = scheduler.date.add(inputs[1]._date, selects[1].value, "minute");
+
+		if (ev.end_date <= ev.start_date)
+			ev.end_date = scheduler.date.add(ev.start_date, scheduler.config.time_step, "minute");
+		return {
+			start_date: new Date(ev.start_date),
+			end_date: new Date(ev.end_date)
+		};
+	},
+	focus: function(node) {
+	}
+};
+scheduler.linkCalendar = function(calendar, datediff) {
+	var action = function() {
+		var date = scheduler._date;
+		var dateNew = new Date(date.valueOf());
+		if (datediff) dateNew = datediff(dateNew);
+		dateNew.setDate(1);
+		scheduler.updateCalendar(calendar, dateNew);
+		return true;
+	};
+
+	scheduler.attachEvent("onViewChange", action);
+	scheduler.attachEvent("onXLE", action);
+	scheduler.attachEvent("onEventAdded", action);
+	scheduler.attachEvent("onEventChanged", action);
+	scheduler.attachEvent("onAfterEventDelete", action);
+	action();
+};
+
+scheduler._markCalendarCurrentDate = function(calendar) {
+	var date = scheduler._date;
+	var mode = scheduler._mode;
+	var month_start = scheduler.date.month_start(new Date(calendar._date));
+	var month_end = scheduler.date.add(month_start, 1, "month");
+
+	if (mode == 'day' || (this._props && !!this._props[mode])) { // if day or units view
+		if (month_start.valueOf() <= date.valueOf() && month_end > date) {
+			scheduler.markCalendar(calendar, date, "dhx_calendar_click");
+		}
+	} else if (mode == 'week') {
+		var dateNew = scheduler.date.week_start(new Date(date.valueOf()));
+		for (var i = 0; i < 7; i++) {
+			if (month_start.valueOf() <= dateNew.valueOf() && month_end > dateNew) // >= would mean mark first day of the next month
+				scheduler.markCalendar(calendar, dateNew, "dhx_calendar_click");
+			dateNew = scheduler.date.add(dateNew, 1, "day");
+		}
+	}
+};
+
+scheduler.attachEvent("onEventCancel", function(){
+	scheduler.destroyCalendar(null, true);
+});

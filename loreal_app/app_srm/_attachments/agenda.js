@@ -36,8 +36,19 @@ var agenda = {
 	client_select_options: {},
 	outlet_select_options: {},
 	user_list: [],
+	events_data: [],
+
+	setEventsData: function(events_data){
+		this.events_data = events_data;
+		//if(!webix.isUndefined(scheduler)) scheduler.parse(this.events_data, "json");
+
+	},
+
+	getEventsData: function(){
+		return this.events_data;
+	},
 	
-	setOutlets: function (outlet_data) {
+	setOutlets: function(outlet_data) {
 		for(var i=0; i<outlet_data.length; i++){
 			//add new channel to option list
 			if(! arrayContains(this.channel_select_options, outlet_data[i].channel, outlet_data[i].channel)){
@@ -93,7 +104,7 @@ var agenda = {
 		return this.outlet_select_options;
 	},
 	
-	setUsers: function (users) {
+	setUsers: function(users) {
 		for(var i = 0; i < users.length; i++){
 			this.user_list.push({
 				key: users[i].username,
@@ -110,44 +121,56 @@ var agenda = {
 		return {
 			id: "planner",
 			view: "dhx-scheduler",
-			date:new Date(2012,2,27),
-			mode:"week",
-			tabs:["day", "week", "month", "year","week_agenda","timeline","unit"],
+			date: new Date(),
+			mode: "week",
+			tabs: ["day", "week", "month", "year","week_agenda","timeline","unit"],
 			init:function(){
 				scheduler.config.xml_date="%Y-%m-%d %H:%i";
+				scheduler.config.api_date="%Y-%m-%d %H:%i";
+				//limit the start date for creating new events
+				scheduler.config.limit_start = new Date(scheduler.date.week_start(new Date()).getFullYear(),
+					                                    scheduler.date.week_start(new Date()).getMonth(),
+					                                    scheduler.date.week_start(new Date()).getDate());
+				scheduler.config.limit_end = scheduler.date.add(new Date(), 1, 'year');
 				scheduler.config.first_hour = 7;
 				scheduler.config.last_hour = 20;
 				scheduler.config.time_step = 30;
 				scheduler.config.start_on_monday = true;
 				scheduler.config.multi_day = false;
+				//disable resize of events in month view
+				scheduler.config.resize_month_events = false; 
+				scheduler.config.resize_month_timed = false; 
+				
 				scheduler.config.buttons_left=["dhx_save_btn","dhx_cancel_btn","report_button"];
 				scheduler.locale.labels["report_button"] = "Raport Vizită";
+
+				scheduler.locale.labels.section_user_list = "Utilizator";				
 				scheduler.locale.labels.section_channel_list = "Canalul de distribuţie";
 				scheduler.locale.labels.section_client_list = "Client";
 				scheduler.locale.labels.section_outlet_list = "Magazin";
-				scheduler.locale.labels.section_user_list = "Utilizator";
 
 				//Open detail edit, no menubar
 				scheduler.xy.menu_width = 0;
 				scheduler.config.details_on_dblclick = true;
 				scheduler.config.details_on_create = true;
-				scheduler.attachEvent("onClick",function(){ return false; });
+				//do not show details box on click
+				//display lightbox for editing if event exists
+				scheduler.attachEvent("onClick",function(id, e){
+					if(id) scheduler.showLightbox(id);
+					return false;
+				});
 			
 				scheduler.ignore_week = function(date){
 				    if (date.getDay() == 6 || date.getDay() == 0) //hides Saturdays and Sundays
 				        return true;
 				};
-				/*
-				scheduler.ignore_month = function(date){
-					if (date.getDay() == 6 || date.getDay() == 0)
-						return true;
-				};
-				*/
+				
 				//Add 60 min time interval for a visit
 				scheduler.config.event_duration = 60; //specify event duration in minutes for auto end time
 				scheduler.config.auto_end_date = true;
 
-				var update_select_options = function(select, options) { // helper function
+				// helper function to update select options from LighBox
+				var update_select_options = function(select, options) { 
 					select.options.length = 0;
 					for (var i=0; i<options.length; i++) {
 						var option = options[i];
@@ -155,27 +178,33 @@ var agenda = {
 					}
 				};
 			
+				var user_onchange = function(event){
+
+				};
 				var channel_onchange = function(event) {
 					var new_child_options = agenda.getClient()[this.value];
 					update_select_options(scheduler.formSection('client_list').control, new_child_options);
 					update_select_options(scheduler.formSection('outlet_list').control, agenda.getOutlet()[new_child_options[0].key]);
-					scheduler.formSection('description').setValue(scheduler.formSection('client_list').getValue());
+					scheduler.formSection('description').setValue(scheduler.formSection('outlet_list').getValue());
 					
 				};
 				var client_onchange = function(event) {
 					var new_child_options = agenda.getOutlet()[this.value];
 					update_select_options(scheduler.formSection('outlet_list').control, new_child_options);
-					scheduler.formSection('description').setValue(scheduler.formSection('client_list').getValue());
+					scheduler.formSection('description').setValue(scheduler.formSection('outlet_list').getValue());
 				};	
+				var outlet_onchange = function(event) {
+					scheduler.formSection('description').setValue(scheduler.formSection('outlet_list').getValue());
+				};
 			
 				//initialize from scratch
 	
 				scheduler.config.lightbox.sections=[
 							{name:"description", height:32, map_to:"text", type:"textarea" , focus:false},
-							{name:"channel_list", height:32, type:"select", options: agenda.getChannel(), map_to:"channel", onchange:channel_onchange, focus:true },
+							{name:"user_list", height:32, type:"select", options:agenda.getUsers(), map_to:"username", onchange:user_onchange, focus:true },
+							{name:"channel_list", height:32, type:"select", options: agenda.getChannel(), map_to:"channel", onchange:channel_onchange },
 							{name:"client_list", height:32, type:"select", options:agenda.getClient(), map_to:"client", onchange:client_onchange },
-							{name:"outlet_list", height:32, type:"select", options:agenda.getOutlet(), map_to:"outlet" },
-							{name:"user_list", height:32, type:"select", options:agenda.getUsers(), map_to:"username" },
+							{name:"outlet_list", height:32, type:"select", options:agenda.getOutlet(), map_to:"outlet", onchange:outlet_onchange },
 							{name:"recurring", height:115, type:"recurring", map_to:"rec_type", button:"recurring"},
 		  					{name:"time", height:72, type:"calendar_time", map_to:"auto" }
 				];	
@@ -187,6 +216,7 @@ var agenda = {
 
 				scheduler.config.wide_form = false;
 
+				scheduler.config.repeat_date = "%Y-%m-%d";
 				scheduler.config.occurrence_timestamp_in_utc = false;
 				scheduler.config.include_end_by = true;
 				scheduler.config.repeat_precise = true;
@@ -232,7 +262,7 @@ var agenda = {
 						}
 					}
 					
-					scheduler.formSection('description').setValue(scheduler.formSection('client_list').getValue());
+					scheduler.formSection('description').setValue(scheduler.formSection('outlet_list').getValue());
 					
 					
 					var lightbox_form = scheduler.getLightbox(); // this will generate lightbox form
@@ -275,34 +305,85 @@ var agenda = {
 					return true;
 				});
 				
+
+				//-----------------------------------------
+				// Deal with event opretations
+				// creation: double-click
+				// editing: via lighbox
+				// deleting: via ligtbox
+				//-----------------------------------------
+
 				//when save button on lightbox is clicked
-				//is_new = true if event is created
-				scheduler.attachEvent("onEventSave",function(id,ev,is_new){
-			        var eventDoc = ev;
-					if (typeof eventDoc.event === 'undefined') eventDoc.doctype = "event";
-					if (typeof eventDoc.sr_report === 'undefined') eventDoc.sr_report = {};
-					console.log("I got:" + id + " >>> " + JSON.stringify(ev) );
-					console.log("Created: " + JSON.stringify(eventDoc) );
-					
-				    if (is_new) {
-				        console.log("New event!!!");
-				        return true;
+				//when creating a new event
+				scheduler.attachEvent("onEventAdded",function(id,ev){
+					if (webix.isUndefined(ev.sr_report)) {
+						ev.sr_report = JSON.stringify({});
+					}
+					if(typeof ev.sr_report === "object"){
+						ev.sr_report = JSON.stringify(ev.sr_report);
+					}
+					if (webix.isUndefined(ev.doctype)) ev.doctype = "event";
+
+					if(ev.rec_type.length > 0 && ev.rec_pattern.length > 0 && ev.event_pid == "") ev.event_pid = "0";
+
+					webix.message("Eveniment creat cu succes!");
+					return true;
+				});	
+
+				scheduler.attachEvent("onEventChanged",function(id,ev){
+					if (webix.isUndefined(ev.sr_report)) {
+						ev.sr_report = JSON.stringify({});
+					}
+					if(typeof ev.sr_report === "object") ev.sr_report = JSON.stringify(ev.sr_report);
+					if (webix.isUndefined(ev.doctype)) ev.doctype = "event";
+					webix.message("Evenimentul a fost salvat cu succes!");
+					return true;
+				});	
+
+				scheduler.attachEvent("onBeforeEventDelete", function(id,e){
+					//something is wrong with this event
+					if(webix.isUndefined(e)){
+						webix.message({type:"error", text:"Selectaţi evenimentul, nu seria!!!"});
+						return false;
+					}
+					//do not delete events with SR Report
+					if(!webix.isUndefined(e.sr_report) && !webix.isUndefined(e.sr_report.report)){
+				    	webix.message({type:"error", text:"Evenimentul conţine Raport SR şi nu poate fi şters!!"});
+				    	return false;
 				    }
+				    if(typeof e.sr_report === "object")  e.sr_report =  JSON.stringify(e.sr_report);
+				    webix.message("Evenimentul a fost şters cu succes!");
 				    return true;
-				})		
+				});
+
+				scheduler.attachEvent("onEventDeleted", function(id){
+				    scheduler.load("../events/_list/events_list/all_events","json");
+				});
+
+				//deal with dragging the event
+				//disable dragging
+				scheduler.attachEvent("onBeforeDrag", function (id, mode, e){
+				    return false;
+				});
+				 
+
+				//-----------------------------------------
+				// End of event operations
+				//-----------------------------------------
+				
 		
 				//scheduler.config.fix_tab_position = false;
 				scheduler.locale.labels.year_tab ="An";
 				scheduler.locale.labels.week_agenda_tab ="Agenda";
 				scheduler.locale.labels.timeline_tab ="Plan";
-				scheduler.locale.labels.unit_tab = "SR"
+				scheduler.locale.labels.unit_tab = "SR";
 
 				scheduler.createTimelineView({
 				     name:"timeline",
 				     second_scale:{
 				        x_unit: "day", // the measuring unit of the axis (by default, 'minute')
 				        x_date: "%F %d" //the date format of the axis ("July 01")
-				    },
+				     },
 				     x_unit:"minute",//measuring unit of the X-Axis.
 				     x_date:"%H:%i", //date format of the X-Axis
 				     x_step:30,      //X-Axis step in 'x_unit's
@@ -315,7 +396,7 @@ var agenda = {
 				});
 				
 				scheduler.ignore_timeline = function(date){
-					//non-work hours
+					//non-working hours
 					if (date.getHours() < 7 || date.getHours() > 20) return true;
 				};
 
@@ -330,10 +411,10 @@ var agenda = {
 			},
 
 			ready:function(){ 
-				scheduler.parse([
-					{ id: 1, start_date: "2012-03-27 09:00", end_date: "2012-03-27 12:00", text:"Task A-12458" },
-					{ id: 2, start_date: "2012-03-28 12:00", end_date: "2012-03-28 16:00", text:"Task C-788" }
-				],"json");
+				scheduler.load("../events/_list/events_list/all_events","json");
+				var dp = new dataProcessor("../events/_update/events_update/");
+				dp.init(scheduler);
+				dp.setTransactionMode("REST");
 			}
 
 		};

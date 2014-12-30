@@ -1,5 +1,6 @@
 //main menu with all components
 var mainlayout = {
+
 	mytoolbar:
 	{
 		view:"toolbar",
@@ -12,7 +13,7 @@ var mainlayout = {
 			{ view:"button", id:"reports", type:"iconButton", icon:"tachometer", label:"Rapoarte", width:120 },
 			{ view:"button", id:"messages", type:"iconButton", icon:"envelope-o", label:"Mesaje", width:120},
 			{},
-			{ view:"toggle", id:"offline", type:"iconButton", name:"offline", offIcon:"refresh", onIcon:"cloud", offLabel:"OFFLINE", onLabel:"Online", width:120, click:"offlineOnClick();" },
+			{ view:"toggle", id:"offline", type:"iconButton", name:"offline", offIcon:"refresh", onIcon:"cloud", offLabel:"GO OFFLINE", onLabel:"GO Online", width:120, click:"offlineOnClick();" },
 			{ view:"button", id:"logout",type:"iconButton", icon:"sign-out", label:"Logout", width:120, click:"logoutOnClick();"}
 		]
 	
@@ -80,7 +81,7 @@ var mainlayout = {
 	
 			};
 		}
-		if(role == 'roles_sr'){
+		if(role == 'roles_sr' || role =='roles_guest'){
 			this.mytoolbar = {
 				view:"toolbar",
 				id:"myToolbar",
@@ -90,7 +91,7 @@ var mainlayout = {
 					{ view:"button", id:"reports", type:"iconButton", icon:"tachometer", label:"Rapoarte", width:120 },
 					{ view:"button", id:"messages", type:"iconButton", icon:"envelope-o", label:"Mesaje", width:120},
 					{},
-					{ view:"toggle", id:"offline", type:"iconButton", name:"offline", offIcon:"refresh", onIcon:"cloud", offLabel:"OFFLINE", onLabel:"Online", width:120, click:"offlineOnClick();" },
+					{ view:"toggle", id:"offline", type:"iconButton", name:"offline", offIcon:"refresh", onIcon:"cloud", offLabel:"GO OFFLINE", onLabel:"GO Online", width:120, click:"offlineOnClick();" },
 					{ view:"button", id:"logout",type:"iconButton", icon:"sign-out", label:"Logout", width:120, click:"logoutOnClick();"}
 				]
 	
@@ -103,12 +104,6 @@ function usersOnClick () {
 	if(webix.isUndefined($$('usersview'))){
 		$$('mainpage').addView({id:"usersview", rows:[webix.copy(userstable.getUsersTable()),webix.copy(userstable.getUsersMenu())]});
 		$$('mainpage').resize(true);
-		$$('userstable').parse(userstable.getUsersData(),"json");
-		$$('userstable').attachEvent("onAfterEditStop", function(state, editor, ignoreUpdate){
-		    if(state.value != state.old){
-		      $$('userstable').addCellCss(editor.row, editor.column, "highlight");
-		    }
-		}); 
 		$$('userstable').refresh();
 	}
 	$$('usersview').show();		

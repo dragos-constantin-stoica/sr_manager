@@ -24,7 +24,12 @@ self.onmessage = function(e) {
 
     case 'setCouchDB_host':
     	self.postMessage('WORKER - setCouchDB_host :' + JSON.stringify(data.msg));
-    	CouchDB.host = data.msg;
+    	if (data.msg.indexOf(":") == -1) {
+    		if(CouchDB.protocol == "http:\/\/")	CouchDB.host = data.msg+":80";
+	   		if(CouchDB.protocol == "https:\/\/")	CouchDB.host = data.msg+":443";
+    	}else{
+    		CouchDB.host = data.msg;
+    	}
     	break;
 
     case 'newUser':
@@ -65,20 +70,6 @@ self.onmessage = function(e) {
 		xhr = oauthRequest("GET", CouchDB.protocol + CouchDB.host + "/_oauth/authorize",oauth_message, oauth_accessor);	  
 		//responseMessage = OAuth.decodeForm(xhr.responseText);
 		xhr = oauthRequest("GET", CouchDB.protocol + CouchDB.host + "/_session", oauth_message, oauth_accessor);
-
-		CouchDB.user_prefix = "org.couchdb.user:";
-
-		CouchDB.prepareUserDoc = function(user_doc, new_password) {
-		  user_doc._id = user_doc._id || CouchDB.user_prefix + user_doc.name;
-		  if (new_password) {
-		    user_doc.password = new_password;
-		  }
-		  user_doc.type = "user";
-		  if (!user_doc.roles) {
-		    user_doc.roles = [];
-		  }
-		  return user_doc;
-		};
 
 		//get user document
 		xhr = oauthRequest("GET", CouchDB.protocol + CouchDB.host + "/_users/org.couchdb.user:" + data.msg.username, oauth_message, oauth_accessor);

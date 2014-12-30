@@ -1,9 +1,9 @@
 function(doc) {
-  if (doc.doc_type == "user") {
+  if (doc.doctype == "user") {
     emit([doc.username], 
 		{
-			"id": doc._id,
-			"rev": doc._rev,
+			"_id": doc._id,
+			"_rev": doc._rev,
 			"username":doc.username, 
 			"name": doc.name, 
 			"surname":doc.surname, 

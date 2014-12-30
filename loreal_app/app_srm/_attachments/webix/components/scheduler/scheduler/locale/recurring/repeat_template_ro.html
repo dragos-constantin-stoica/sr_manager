@@ -2,8 +2,8 @@
 	<form>
     <div class="dhx_repeat_left">
                <label><input class="dhx_repeat_radio" type="radio" name="repeat" value="day" />Zilnic</label><br />
-               <label><input class="dhx_repeat_radio" type="radio" name="repeat" value="week"/>Saptamanal</label><br />
-               <label><input class="dhx_repeat_radio" type="radio" name="repeat" value="month" checked />Lunar</label><br />
+               <label><input class="dhx_repeat_radio" type="radio" name="repeat" value="week" />Saptamanal</label><br />
+               <label><input class="dhx_repeat_radio" type="radio" name="repeat" value="month" checked/>Lunar</label><br />
                <label><input class="dhx_repeat_radio" type="radio" name="repeat" value="year" />Anual</label>
     </div>
     <div class="dhx_repeat_divider"></div>
@@ -26,11 +26,11 @@
                                <label><input class="dhx_repeat_checkbox" type="checkbox" name="week_day" value="5" />Vineri</label>
                            </td>
                            <td>
-                               <label><input class="dhx_repeat_checkbox" type="checkbox" name="week_day" value="3" />Miercuri</label><br />
-                               <label><input class="dhx_repeat_checkbox" type="checkbox" name="week_day" value="6" />Sambata</label>
-                           </td>
+                               <label><input class="dhx_repeat_checkbox" type="checkbox" name="week_day" value="3" />Miercuri</label><br /><br />
+                               </td>
                            <td>
-                               <label><input class="dhx_repeat_checkbox" type="checkbox" name="week_day" value="0" />Duminica</label><br /><br />
+                               <label><input class="dhx_repeat_checkbox" type="checkbox" name="week_day" value="6" />Sambata</label><br />
+                               <label><input class="dhx_repeat_checkbox" type="checkbox" name="week_day" value="0" />Duminica</label>
                            </td>
                        </tr>
                    </table>
@@ -40,7 +40,7 @@
                    <label><input class="dhx_repeat_radio" type="radio" name="month_type" value="d"/>Repeta in</label><input class="dhx_repeat_text" type="text" name="month_day" value="1" />zi la fiecare<input class="dhx_repeat_text" type="text" name="month_count" value="1" />luni<br />
                    <label><input class="dhx_repeat_radio" type="radio" name="month_type" checked value="w"/>In a</label><input class="dhx_repeat_text" type="text" name="month_week2" value="1" />zi de<select name="month_day2"><option value="1" selected >Luni<option value="2">Marti<option value="3">Miercuri<option value="4">Joi<option value="5">Vineri<option value="6">Sambata<option value="0">Duminica</select>la fiecare<input class="dhx_repeat_text" type="text" name="month_count2" value="1" />luni<br />
                </div>
-               <div id="dhx_repeat_year">
+               <div style="display:none;" id="dhx_repeat_year">
                    <label><input class="dhx_repeat_radio" type="radio" name="year_type" value="d"/>In</label><input class="dhx_repeat_text" type="text" name="year_day" value="1" />zi a lunii<select name="year_month"><option value="0" selected >Ianuarie<option value="1">Februarie<option value="2">Martie<option value="3">Aprilie<option value="4">Mai<option value="5">Iunie<option value="6">Iulie<option value="7">August<option value="8">Septembrie<option value="9">Octombrie<option value="10">Noiembrie<option value="11">Decembrie</select><br />
                    <label><input class="dhx_repeat_radio" type="radio" name="year_type" checked value="w"/>In</label><input class="dhx_repeat_text" type="text" name="year_week2" value="1" />zi de<select name="year_day2"><option value="1" selected >Luni<option value="2">Marti<option value="3">Miercuri<option value="4">Joi<option value="5">Vineri<option value="6">Sambata<option value="7">Duminica</select>a lunii<select name="year_month2"><option value="0" selected >Ianuarie<option value="1">Februarie<option value="2">Martie<option value="3">Aprilie<option value="4">Mai<option value="5">Iunie<option value="6">Iulie<option value="7">August<option value="8">Septembrie<option value="9">Octombrie<option value="10">Noiembrie<option value="11">Decembrie</select><br />
                </div>

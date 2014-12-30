@@ -1,10 +1,37 @@
 /*
-dhtmlxScheduler v.4.1.0 Stardard
+dhtmlxScheduler v.4.2.0 Stardard
 
 This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
 
 (c) Dinamenta, UAB.
 */
-scheduler.attachEvent("onTemplatesReady",function(){var e=!0,t=scheduler.date.str_to_date("%Y-%m-%d"),r=scheduler.date.date_to_str("%Y-%m-%d");scheduler.attachEvent("onBeforeViewChange",function(s,a,i,n){if(e){e=!1;for(var d={},l=(document.location.hash||"").replace("#","").split(","),o=0;o<l.length;o++){var _=l[o].split("=");2==_.length&&(d[_[0]]=_[1])}if(d.date||d.mode){try{this.setCurrentView(d.date?t(d.date):null,d.mode||null)}catch(c){this.setCurrentView(d.date?t(d.date):null,i)}return!1}}var h="#date="+r(n||a)+",mode="+(i||s);
-return document.location.hash=h,!0})});
-//# sourceMappingURL=../sources/ext/dhtmlxscheduler_url.js.map
+scheduler.attachEvent("onTemplatesReady",function(){
+   var first = true;
+   var s2d = scheduler.date.str_to_date("%Y-%m-%d");
+   var d2s = scheduler.date.date_to_str("%Y-%m-%d");
+   scheduler.attachEvent("onBeforeViewChange",function(om,od,m,d){
+      if (first){
+         first = false;
+         var p={};
+         var data=(document.location.hash||"").replace("#","").split(",");
+         for (var i=0; i < data.length; i++) {
+         	var s = data[i].split("=");
+         	if (s.length==2)
+         	p[s[0]]=s[1];
+         }
+         
+         if (p.date || p.mode){
+         	try{
+            	this.setCurrentView((p.date?s2d(p.date):null),(p.mode||null));
+        	} catch(e){
+        		//assuming that mode is not available anymore
+        		this.setCurrentView((p.date?s2d(p.date):null),m);
+        	}
+            return false;
+         }
+      }
+      var text = "#date="+d2s(d||od)+",mode="+(m||om);
+      document.location.hash = text;
+      return true;
+   });
+});

@@ -1,12 +1,147 @@
 /*
-dhtmlxScheduler v.4.1.0 Stardard
+dhtmlxScheduler v.4.2.0 Stardard
 
 This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
 
 (c) Dinamenta, UAB.
 */
-!function(){function e(e){var t={};for(var s in e)0!==s.indexOf("_")&&(t[s]=e[s]);return i.use_id||delete t.id,t}function t(){clearTimeout(n),n=setTimeout(function(){scheduler.updateView()},1)}function s(e){e._loading=!0,e._not_render=!0,e.callEvent("onXLS",[])}function r(e){e._not_render=!1,e._render_wait&&e.render_view_data(),e._loading=!1,e.callEvent("onXLE",[])}function a(e){return i.use_id?e.id:e.cid}var n,i={use_id:!1};scheduler.backbone=function(n,d){function l(){o.length&&(scheduler.parse(o,"json"),o=[])
-}d&&(i=d),n.bind("change",function(e){var s=a(e),r=scheduler._events[s]=e.toJSON();r.id=s,scheduler._init_event(r),t()}),n.bind("remove",function(e){var t=a(e);scheduler._events[t]&&scheduler.deleteEvent(t)});var o=[];n.bind("add",function(e){var t=a(e);if(!scheduler._events[t]){var s=e.toJSON();s.id=t,scheduler._init_event(s),o.push(s),1==o.length&&setTimeout(l,1)}}),n.bind("request",function(e){e instanceof Backbone.Collection&&s(scheduler)}),n.bind("sync",function(e){e instanceof Backbone.Collection&&r(scheduler)
-}),n.bind("error",function(e){e instanceof Backbone.Collection&&r(scheduler)}),scheduler.attachEvent("onEventCreated",function(e){var t=new n.model(scheduler.getEvent(e));return scheduler._events[e]=t.toJSON(),scheduler._events[e].id=e,!0}),scheduler.attachEvent("onEventAdded",function(t){if(!n.get(t)){var s=e(scheduler.getEvent(t)),r=new n.model(s),i=a(r);i!=t&&this.changeEventId(t,i),n.add(r),n.trigger("scheduler:add",r)}return!0}),scheduler.attachEvent("onEventChanged",function(t){var s=n.get(t),r=e(scheduler.getEvent(t));
-return s.set(r),n.trigger("scheduler:change",s),!0}),scheduler.attachEvent("onEventDeleted",function(e){var t=n.get(e);return t&&(n.trigger("scheduler:remove",t),n.remove(e)),!0})}}();
-//# sourceMappingURL=../sources/ext/dhtmlxscheduler_mvc.js.map
+(function(){
+
+	var cfg = {
+		use_id : false
+	};
+
+	//remove private properties
+	function sanitize(ev){
+		var obj = {};
+		for (var key in ev)
+			if (key.indexOf("_") !== 0)
+				obj[key] = ev[key];
+
+		if (!cfg.use_id)
+			delete obj.id;
+
+		return obj;
+	}
+
+	var update_timer;
+	function update_view(){
+		clearTimeout(update_timer);
+		update_timer = setTimeout(function(){
+			scheduler.updateView();
+		},1);
+	}
+
+	function _start_ext_load(cal){
+		cal._loading = true;
+		cal._not_render = true;
+
+		cal.callEvent("onXLS", []);
+	}
+	function _finish_ext_load(cal){
+		cal._not_render = false;
+		if (cal._render_wait) 
+			cal.render_view_data();
+		cal._loading = false;
+
+		cal.callEvent("onXLE", []);
+	}
+
+	
+	function _get_id(model){
+		return cfg.use_id ? model.id : model.cid;
+	}
+
+scheduler.backbone = function(events, config){
+	if (config) cfg = config;
+
+	events.bind("change", function(model, info){
+		var cid = _get_id(model);
+		var ev = scheduler._events[cid] = model.toJSON();
+		ev.id = cid;
+
+		scheduler._init_event(ev);
+		update_view();
+	});
+	events.bind("remove", function(model, changes){
+		var cid = _get_id(model);
+		if (scheduler._events[cid])
+			scheduler.deleteEvent(cid);
+	});
+
+	var queue = [];
+	function add_from_queue(){
+		if (queue.length){
+			scheduler.parse(queue, "json");
+			queue = [];
+		}
+	}
+
+	events.bind("add", function(model, changes){ 
+		var cid = _get_id(model);
+		if (!scheduler._events[cid]){
+			var ev =  model.toJSON();
+			ev.id = cid;
+			scheduler._init_event(ev); 
+
+			queue.push(ev);
+			if (queue.length == 1)
+				setTimeout(add_from_queue,1);
+		}
+	});
+
+	events.bind("request", function(obj){
+		if (obj instanceof Backbone.Collection)
+			_start_ext_load(scheduler);
+	});
+	events.bind("sync", function(obj){
+		if (obj instanceof Backbone.Collection)
+			_finish_ext_load(scheduler);
+	});
+	events.bind("error", function(obj){
+		if (obj instanceof Backbone.Collection)
+			_finish_ext_load(scheduler);
+	});
+
+
+	scheduler.attachEvent("onEventCreated", function(id){
+		var ev = new events.model(scheduler.getEvent(id));
+		scheduler._events[id] = ev.toJSON();
+		scheduler._events[id].id = id;
+
+		return true;
+	});
+
+	scheduler.attachEvent("onEventAdded", function(id){
+		if (!events.get(id)){
+			var data = sanitize(scheduler.getEvent(id));
+			var model = new events.model(data);
+
+			var cid = _get_id(model);
+			if (cid != id)
+				this.changeEventId(id, cid);
+			events.add(model);
+			events.trigger("scheduler:add", model);
+		}
+		return true;
+	});
+	scheduler.attachEvent("onEventChanged", function(id){
+		var ev = events.get(id);
+		var upd = sanitize(scheduler.getEvent(id));
+
+		ev.set(upd);
+		events.trigger("scheduler:change", ev);
+
+		return true;
+	});
+	scheduler.attachEvent("onEventDeleted", function(id){
+		var model = events.get(id);
+		if (model){
+			events.trigger("scheduler:remove", model);
+			events.remove(id);
+		}
+		return true;
+	});
+};
+
+})();

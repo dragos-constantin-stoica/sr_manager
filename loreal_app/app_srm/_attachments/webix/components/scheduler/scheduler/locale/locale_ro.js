@@ -1,11 +1,4 @@
 /*
-dhtmlxScheduler v.4.1.0 Stardard
-
-This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
-
-(c) Dinamenta, UAB.
-*/
-/*
 	Traducere de Ovidiu Lixandru: http://www.madball.ro
  */
 
@@ -34,12 +27,12 @@ scheduler.locale = {
 		full_day:"Toata ziua",
 
 		/*recurring events*/
-		confirm_recurring:"Vrei sa editezi toata seria de evenimente repetate?",
+		confirm_recurring:"Vrei sa editezi toata seria de evenimente?",
 		section_recurring:"Repetare",
 		button_recurring:"Dezactivata",
 		button_recurring_open:"Activata",
 		button_edit_series: "Editeaza serie",
-		button_edit_occurrence: "Editeaza doar intrare",
+		button_edit_occurrence: "Editeaza eveniment",
 
 		/*agenda view extension*/
 		agenda_tab:"Agenda",

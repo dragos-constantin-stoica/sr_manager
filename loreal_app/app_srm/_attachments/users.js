@@ -1,8 +1,9 @@
 //users		
 
-var changed_id = [];
-
 var userstable = {	
+
+	EDITSTOP: false,
+	url: "",
 	usersdata : [],	
 	asmuserslist: [""],
 	layout: {
@@ -11,12 +12,13 @@ var userstable = {
 			//autoconfig:true,
 			columns:[
 			{ id:"id",       header: "id", hidden:true, width: 50},
-			{ id:"rev",       header: "rev", hidden:true, width: 50},
+			{ id:"_id",      header: "_id", hidden:true, width: 50},
+			{ id:"_rev",     header: "_rev", hidden:true, width: 50},
 			{ id:"username", header:["Nume utilizator",{content:"textFilter"}], width:300, fillspace:true},
 			{ id:"password", header:"Parola", hidden:true, editor:"text", width:100},		
-			{ id:"name",     header:["Preume",{content:"textFilter"}], editor:"text", width:200},
+			{ id:"name",     header:["Prenume",{content:"textFilter"}], editor:"text", width:200},
 			{ id:"surname",  header: ["Nume",{content:"textFilter"}], editor:"text", width:200},
-			{ id:"boss_asm", header:["Nume şef SR (e un ASM)", {content:"textFilter"}], editor:"text" , 
+			{ id:"boss_asm", header:["Nume ASM", {content:"textFilter"}], editor:"text" , 
 				template:function(obj, common){
 							if (obj.$group) return common.treetable(obj, common) + obj.value;
 							return obj.boss_asm;
@@ -28,20 +30,15 @@ var userstable = {
 			{ id:"roles_sr",    header:"SR",    width:55,  template:"{common.checkbox()}", editor:"checkbox", checkValue:true, uncheckValue:false },		
 			{ id:"active",      header:"Activ", width:55,  template:"{common.checkbox()}", editor:"checkbox", checkValue:true, uncheckValue:false }
 			],
+			on:{
+		        'onAfterAdd': function(obj, index){ console.log("New item added!"); },
+		        'onAfterEditStop': function(state, editor, ignoreUpdate){console.log("After edit stop");}
+		    },
 			drag:"row",
 			editable:true,
 			select:"row",
 			navigation:true,
-			on:{
-				onAfterEditStop:function(state, editor, ignoreUpdate){
-					if(state.value != state.old){
-						var sel = $$('userstable').getSelectedId();
-						var row = $$('userstable').getItem(sel.row);
-						if(changed_id.indexOf(row["id"]) == -1) changed_id.push(row["id"]);
-					    //webix.message("Row " + row["id"] + " was changed");
-					} 
-				}
-			}
+			save:"proxyCouchDB->../users/_update/user_update"
 	},	
 	usersmenu: {
 		view:"toolbar",
@@ -50,11 +47,14 @@ var userstable = {
 				{ view:"button", id:"passworduser",    type:"iconButton", icon:"key",    label:"Scrimbă parola", width:150, click:"password_user();" },
 				{ view:"button", id:"newuser",    type:"iconButton", icon:"plus",    label:"Crează utilizator", width:150, click:"new_user();" },
 				{ view:"button", id:"groupbyasm", type:"iconButton", icon:"indent",  label:"Grupează ASM",      width:150, click:"group_by_ASM();" },
-				{ view:"button", id:"ungroup",    type:"iconButton", icon:"outdent", label:"Afişează normal",   width:150, click:"ungroup_user();" },
-				{ view:"button", id:"saveuser",   type:"iconButton", icon:"save",    label:"Salvează datele",   width:150, click:"save_user();" }
+				{ view:"button", id:"ungroup",    type:"iconButton", icon:"outdent", label:"Afişează normal",   width:150, click:"ungroup_user();" }
 			]
 	},
 	
+	setURL: function(url){
+		this.url = url;
+	},
+
 	getUsersMenu: function () {
 		return this.usersmenu;
 	},
@@ -71,12 +71,13 @@ var userstable = {
 					//autoconfig:true,
 					columns:[
 					{ id:"id",       header: "id", hidden:true, width: 50},
-					{ id:"rev",       header: "rev", hidden:true, width: 50},
+					{ id:"_id",      header: "_id", hidden:true, width: 50},					
+					{ id:"_rev",     header: "_rev", hidden:true, width: 50},
 					{ id:"username", header:["Nume utilizator",{content:"textFilter"}], width:300, fillspace:true},
 					{ id:"password", header:"Parola", hidden:true, editor:"text", width:100},		
-					{ id:"name",     header:["Preume",{content:"textFilter"}], editor:"text", width:200},
+					{ id:"name",     header:["Prenume",{content:"textFilter"}], editor:"text", width:200},
 					{ id:"surname",  header: ["Nume",{content:"textFilter"}], editor:"text", width:200},
-					{ id:"boss_asm", header:["Nume şef SR (e un ASM)", {content:"textFilter"}], editor:"select" , options:this.asmuserslist,
+					{ id:"boss_asm", header:["Nume ASM", {content:"textFilter"}], editor:"select" , options:this.asmuserslist,
 						template:function(obj, common){
 									if (obj.$group) return common.treetable(obj, common) + obj.value;
 									return obj.boss_asm;
@@ -88,20 +89,17 @@ var userstable = {
 					{ id:"roles_sr",    header:"SR",    width:55,  template:"{common.checkbox()}", editor:"checkbox", checkValue:true, uncheckValue:false },		
 					{ id:"active",      header:"Activ", width:55,  template:"{common.checkbox()}", editor:"checkbox", checkValue:true, uncheckValue:false }
 					],
+					on:{
+				        'onAfterAdd': addUser,
+				        'onAfterEditStop': function(state, editor, ignoreUpdate){userstable.EDITSTOP = true;},
+				        'onDataUpdate': updateUser
+				    },
 					drag:"row",
 					editable:true,
 					select:"row",
 					navigation:true,
-					on:{
-						onAfterEditStop:function(state, editor, ignoreUpdate){
-							if(state.value != state.old){
-								var sel = $$('userstable').getSelectedId();
-								var row = $$('userstable').getItem(sel.row);
-								if(changed_id.indexOf(row["id"]) == -1) changed_id.push(row["id"]);
-							    //webix.message("Row " + row["id"] + " was changed");
-							} 
-						}
-					}
+					url:userstable.url,
+					save:"proxyCouchDB->../users/_update/user_update"
 			};
 			this.usersmenu = {
 				view:"toolbar",
@@ -110,8 +108,7 @@ var userstable = {
 					{ view:"button", id:"passworduser",    type:"iconButton", icon:"key",    label:"Scrimbă parola", width:150, click:"password_user();" },
 					{ view:"button", id:"newuser",    type:"iconButton", icon:"plus",    label:"Crează utilizator", width:150, click:"new_user();" },
 					{ view:"button", id:"groupbyasm", type:"iconButton", icon:"indent",  label:"Grupează ASM",      width:150, click:"group_by_ASM();" },
-					{ view:"button", id:"ungroup",    type:"iconButton", icon:"outdent", label:"Afişează normal",   width:150, click:"ungroup_user();" },
-					{ view:"button", id:"saveuser",   type:"iconButton", icon:"save",    label:"Salvează datele",   width:150, click:"save_user();" }
+					{ view:"button", id:"ungroup",    type:"iconButton", icon:"outdent", label:"Afişează normal",   width:150, click:"ungroup_user();" }
 				]
 			};
 		};
@@ -126,41 +123,37 @@ var userstable = {
 					{ id:"rev",       header: "rev", hidden:true, width: 50},
 					{ id:"username", header:["Nume utilizator",{content:"textFilter"}], width:300, fillspace:true},
 					{ id:"password", header:"Parola", hidden:true, editor:"text", width:100},		
-					{ id:"name",     header:["Preume",{content:"textFilter"}], editor:"text", width:200},
+					{ id:"name",     header:["Prenume",{content:"textFilter"}], editor:"text", width:200},
 					{ id:"surname",  header: ["Nume",{content:"textFilter"}], editor:"text", width:200},
-					{ id:"boss_asm", header:"Nume şef SR (e un ASM)",	width:300},
+					{ id:"boss_asm", header:"Nume ASM",	width:300},
 					{ id:"roles_admin", header:"ADMIN", hidden:true, width:0, template:"{common.checkbox()}"},
 					{ id:"roles_guest", header:"Guest", hidden:true, width:0, template:"{common.checkbox()}"},			
 					{ id:"roles_asm",   header:"ASM",   hidden:true, width:0, template:"{common.checkbox()}"},
 					{ id:"roles_sr",    header:"SR",    hidden:true, width:0, template:"{common.checkbox()}"},		
 					{ id:"active",      header:"Activ", hidden:true, width:0, template:"{common.checkbox()}"}
 					],
+					on:{
+				        'onAfterAdd': addUser,
+				        'onAfterEditStop': function(state, editor, ignoreUpdate){userstable.EDITSTOP = true;},
+				        'onDataUpdate': updateUser
+				    },
 					editable:true,
 					select:"row",
 					navigation:true,
-					on:{
-						onAfterEditStop:function(state, editor, ignoreUpdate){
-							if(state.value != state.old){
-								var sel = $$('userstable').getSelectedId();
-								var row = $$('userstable').getItem(sel.row);
-								if(changed_id.indexOf(row["id"]) == -1) changed_id.push(row["id"]);
-							    //webix.message("Row " + row["id"] + " was changed");
-							} 
-						}
-					}
+					url:userstable.url,
+					save:"proxyCouchDB->../users/_update/user_update"
 			};
 			this.usersmenu = {
 				view:"toolbar",
 				    id:"userstoolbar",
 				    cols:[
-					{ view:"button", id:"passworduser",    type:"iconButton", icon:"key",    label:"Scrimbă parola", width:150, click:"password_user();" },
-					{ view:"button", id:"saveuser",   type:"iconButton", icon:"save",    label:"Salvează datele",   width:150, click:"save_user();" }
+					{ view:"button", id:"passworduser",    type:"iconButton", icon:"key",    label:"Scrimbă parola", width:150, click:"password_user();" }
 				]
 	
 			};
 		};
 		
-		if(role == 'roles_sr'){
+		if(role == 'roles_sr' || role == 'roles_guest' ){
 			this.layout = {
 					view:"treetable",
 					id: "userstable",
@@ -170,34 +163,30 @@ var userstable = {
 					{ id:"rev",       header: "rev", hidden:true, width: 50},
 					{ id:"username", header:"Nume utilizator", width:300, fillspace:true},
 					{ id:"password", header:"Parola", hidden:true, editor:"text", width:100},		
-					{ id:"name",     header:"Preume", width:200},
+					{ id:"name",     header:"Prenume", width:200},
 					{ id:"surname",  header: "Nume",  width:200},
-					{ id:"boss_asm", header:"Nume şef SR (e un ASM)", width:300},
+					{ id:"boss_asm", header:"Nume ASM", width:300},
 					{ id:"roles_admin", header:"ADMIN", hidden:true, width:0, template:"{common.checkbox()}"},
 					{ id:"roles_guest", header:"Guest", hidden:true, width:0,  template:"{common.checkbox()}"},			
 					{ id:"roles_asm",   header:"ASM",   hidden:true, width:0,  template:"{common.checkbox()}"},
 					{ id:"roles_sr",    header:"SR",    hidden:true, width:0,  template:"{common.checkbox()}"},		
 					{ id:"active",      header:"Activ", hidden:true, width:0,  template:"{common.checkbox()}"}
 					],
+					on:{
+				        'onAfterAdd': addUser,
+				        'onAfterEditStop': function(state, editor, ignoreUpdate){userstable.EDITSTOP = true;},
+				        'onDataUpdate': updateUser
+				    },
 					select:"row",
 					navigation:true,
-					on:{
-						onAfterEditStop:function(state, editor, ignoreUpdate){
-							if(state.value != state.old){
-								var sel = $$('userstable').getSelectedId();
-								var row = $$('userstable').getItem(sel.row);
-								if(changed_id.indexOf(row["id"]) == -1) changed_id.push(row["id"]);
-							    //webix.message("Row " + row["id"] + " was changed");
-							} 
-						}
-					}
+					url:userstable.url,
+					save:"proxyCouchDB->../users/_update/user_update"
 			};
 			this.usersmenu = {
 				view:"toolbar",
 				    id:"userstoolbar",
 				    cols:[
-					{ view:"button", id:"passworduser",    type:"iconButton", icon:"key",    label:"Scrimbă parola", width:150, click:"password_user();" },
-					{ view:"button", id:"saveuser",   type:"iconButton", icon:"save",    label:"Salvează datele",   width:150, click:"save_user();" }
+					{ view:"button", id:"passworduser",    type:"iconButton", icon:"key",    label:"Scrimbă parola", width:150, click:"password_user();" }
 				]
 	
 			};
@@ -230,13 +219,13 @@ var newpasswordform = {
 			if (! this.getParentView().validate())
 				webix.message({ type:"error", text:"Parola nu este validă!" });
 			else{
+				userstable.EDITSTOP = true;
 				
 				var sel = $$('userstable').getSelectedId();
 				var row = $$('userstable').getItem(sel.row);
 				row["password"] = $$('newpassword').getValue(); 
 				$$('userstable').updateItem(sel.row, row);
-				if(row["rev"] != "new" && changed_id.indexOf(row["id"]) == -1) changed_id.push(row["id"]);
-				
+
 				$$('new_user').hide();
 				$$('newpasswordform').destructor();						
 				$$('new_user').destructor();
@@ -322,10 +311,14 @@ function ungroup_user(){
 };
 
 //Save user information
-//save to couchdocument in loreal_app
-//update _security in loreal_app
+//TODO - Refresh SR list
 //update _users
-function save_user(){
+
+function addUser (obj, index) {
+
+	console.log("Add user start!");
+
+
 	var security_obj = {
 		"admins": {
 		       "names": [],
@@ -337,51 +330,20 @@ function save_user(){
 		   }
 	};
 	var FORCE_LOGOUT = false;
-	
+
 	$$('userstable').eachRow( 
 	    function (row){ 
-	        console.log( $$('userstable').getItem(row));
 			var user_row = $$('userstable').getItem(row);
-			//populate mandatory fields
-			if (webix.isUndefined(user_row.roles_admin)) user_row.roles_admin = false;
-			if (webix.isUndefined(user_row.roles_asm)) user_row.roles_asm = false;
-			if (webix.isUndefined(user_row.roles_guest)) user_row.roles_guest = false;
-			if (webix.isUndefined(user_row.roles_sr)) user_row.roles_sr = false;
-			if (webix.isUndefined(user_row.active)) user_row.active = false;
-			/*
-			$.couch.session({
-			    success: function(data) {
-			        console.log(data);
-			    }
-			});
-			*/
+			
 			//add admins to _security on loreal_app
 			if(user_row.roles_admin && user_row.active){
 				security_obj.admins.names.push(user_row.username);
 			}
 			
 			//create all users
-			if (user_row.rev == "new"){
+			if (user_row.username == $$('userstable').getItem(obj).username){
 				//new user
-				var doc = {};
-				doc.doc_type = "user";
-				doc.username = user_row.username;
-				doc.roles_admin = user_row.roles_admin;
-				doc.roles_asm = user_row.roles_asm;
-				doc.roles_guest = user_row.roles_guest;
-				doc.roles_sr = user_row.roles_sr;
-				doc.boss_asm = user_row.boss_asm;
-				doc.name = user_row.name;
-				doc.surname = user_row.surname;
-				doc.active = user_row.active;
-				$.couch.db("loreal_app").saveDoc(doc, {
-				    success: function(data) {
-				        //console.log(data);
-				    },
-				    error: function(status) {
-				        console.log(status);
-				    }
-				});
+
 				//create user in _users
 				if(!webix.isUndefined(user_row.password)){
 					var userDoc = {
@@ -391,185 +353,87 @@ function save_user(){
 					//create user in _users
 					worker.postMessage({'cmd': 'newUser', 'msg': userDoc});	
 				}
+				//check for inactive user and log it out
+				FORCE_LOGOUT = !user_row.active;
 			};
 			
-			//update existing user
-			if(changed_id.indexOf(user_row.id) != -1 && user_row.rev != "new"){
-				//existing user, update
-				var doc = {};
-				doc.doc_type = "user";
-				doc._id = user_row.id;
-				doc._rev = user_row.rev;
-				doc.username = user_row.username;
-				doc.roles_admin = user_row.roles_admin;
-				doc.roles_asm = user_row.roles_asm;
-				doc.roles_guest = user_row.roles_guest;
-				doc.roles_sr = user_row.roles_sr;
-				doc.boss_asm = user_row.boss_asm;
-				doc.name = user_row.name;
-				doc.surname = user_row.surname;
-				doc.active = user_row.active;
-				//User auto/self deactivated 
-				if(!user_row.active && user_row.username == USERNAME.username) FORCE_LOGOUT = true;
-				
-				$.couch.db("loreal_app").saveDoc(doc, {
-				    success: function(data) {
-				        console.log(data);
-				    },
-				    error: function(status) {
-				        console.log(status);
-				    }
-				});
-				//update _users with new password
-				if(!webix.isUndefined(user_row.password)){
-					//user must login again
-					if(user_row.username == USERNAME.username) FORCE_LOGOUT = true;
-					var userDoc = {
-					    password: user_row.password,
-					    username: user_row.username
-					};
-					worker.postMessage({'cmd':'setPassword', 'msg':userDoc});
-				}
-			}					
 	    },
 		true
 	);
-	
+					
 	//update _security from loreal_app
 	if(USERNAME.roles_admin)
 		worker.postMessage({'cmd': 'setSecurity', 'msg': security_obj});
 
+	console.log("Add user end!");
+	userstable.EDITSTOP = true;
 	if(FORCE_LOGOUT){ 
 		logoutOnClick();
-		return;
 	}
-	
-	//refresh user data
-	//Check again if any information changed
-	webix.ajax(CouchDB.protocol + CouchDB.host + "/loreal_app/_design/users/_view/all_users?key=[\""+ USERNAME.username  +"\"]", 
-		function(couchdoc){
+}
 
-			//Prepare data according to user roles
-			var userdoc = (JSON.parse(couchdoc)).rows[0].value;
-			if(!userdoc.active){
-				//Automatically log out inactive users
-				logoutOnClick();
-			}else{
-				//Set session information
-				webix.storage.session.remove('USERNAME');
-				webix.storage.session.put('USERNAME', userdoc);	
-				USERNAME = webix.storage.session.get('USERNAME');
-				
-				async.series([
-					//Get asm list
-					function(callback){
-						webix.ajax(CouchDB.protocol + CouchDB.host + "/loreal_app/_design/users/_view/all_asm", 
-							function(couchdoc){
-								asmuserslist = [""];
-								var userdoc = (JSON.parse(couchdoc)).rows;
-								for(var i = 0; i < userdoc.length; i++){
-									asmuserslist.push(userdoc[i].key[0]);
-								}
-								userstable.setASMList(asmuserslist);
-								callback(null,"ASM list loaded");
-							}
-						);
-					},
-					//Get users
-					function(callback){																	
-						if(USERNAME.roles_admin){
-							//Get all users
-							webix.ajax(CouchDB.protocol + CouchDB.host + "/loreal_app/_design/users/_view/all_users", 
-								function(couchdoc){
-									usersdata = [];
-									var userdoc = (JSON.parse(couchdoc)).rows;
-									for(var i = 0; i < userdoc.length; i++){
-										usersdata.push(userdoc[i].value);
-									}
-									userstable.setUsersData(usersdata);
-									agenda.setUsers(usersdata);
-									callback(null,"Admin users loaded");
-								}
-							);
+function updateUser (id, obj, mode) {
+	if(!userstable.EDITSTOP){
 
-						}else{
-							if (USERNAME.roles_asm){
-								//Get own profile and subordinates
-								usersdata = [];
-								usersdata.push(USERNAME);
-								webix.ajax(CouchDB.protocol + CouchDB.host + "/loreal_app/_design/users/_view/asm_tree?key=[\""+ USERNAME.username  +"\"]", 
-									function(couchdoc){
-										var userdoc = (JSON.parse(couchdoc)).rows;
-										for(var i = 0; i < userdoc.length; i++){
-											usersdata.push(userdoc[i].value);
-										}
-										userstable.setUsersData(usersdata);
-										agenda.setUsers(usersdata);
-										callback(null,"ASM users loaded");
-									}
-								);
-							}else{
-								if(USERNAME.roles_guest || USERNAME.roles_sr){
-									//Get own profile only
-									usersdata = [];
-									usersdata.push(USERNAME);
-									userstable.setUsersData(usersdata);
-									agenda.setUsers(usersdata);									
-									callback(null,"Guest/SR users loaded");
-					
-									//Activate toolbar items
-									//Load outlets
-									//Load scheduler events
-								}
-							}
-						}
-					},
-					//Get SR list
-					function (callback) {
-						var srlist = ["[- NEALOCAT -]"];
-						webix.ajax(CouchDB.protocol + CouchDB.host + "/loreal_app/_design/users/_view/all_sr", 
-							function(couchdoc){
-								var userdoc = (JSON.parse(couchdoc)).rows;
-								for(var i = 0; i < userdoc.length; i++){
-									srlist.push(userdoc[i].value.username);
-								}
-								outletstable.setSRList(srlist);
-								callback(null,srlist);
-							}
-						);
-					},
-					//Get outlets
-					function(callback){
-						var outletsdata = [];
-						webix.ajax(CouchDB.protocol + CouchDB.host + "/loreal_app/OUTLETS", 
-							function(couchdoc){
-								outletsdata = (JSON.parse(couchdoc)).data;
-								outletstable.setOutletsData(outletsdata);
-								agenda.setOutlets(outletsdata);
-								callback(null,outletsdata);
-							}
-						);
-					},
-					//refresh all interface and show userstable
-					function(callback){
-						var role = (USERNAME.roles_admin?'roles_admin':(USERNAME.roles_asm?'roles_asm':((USERNAME.roles_sr || USERNAME.roles_guest)?'roles_sr':'')));
-						mainlayout.setToolbar(role);
-						userstable.setUsersTable(role);
-						
-						if(!webix.isUndefined($$('main'))) $$('main').destructor();
-						//load the interface
-						logic.main();
-						usersOnClick();
-					}],
-					function(err, result){
-						if(err) console.log("Error: " + err);
-						webix.message("Datele au fost salvate cu succes!");
-					}
-				);
+		console.log("Update user start!");
+
+
+		var security_obj = {
+			"admins": {
+			       "names": [],
+			       "roles": []
+			   },
+			   "members": {
+			       "names": [],
+			       "roles": []
+			   }
+		};
+		var FORCE_LOGOUT = false;
+
+		$$('userstable').eachRow( 
+		    function (row){ 
+				var user_row = $$('userstable').getItem(row);
 				
+				//add admins to _security on loreal_app
+				if(user_row.roles_admin && user_row.active){
+					security_obj.admins.names.push(user_row.username);
+				}
+								
+				//update existing user
 				
-			}
+				//User auto/self deactivated 
+				if(!user_row.active && user_row.username == USERNAME.username) FORCE_LOGOUT = true;
+				
+
+				//update _users with new password
+				if(!webix.isUndefined(user_row.password) && user_row.password.length > 0){
+					//user must login again
+					if(user_row.username == USERNAME.username) FORCE_LOGOUT = true;
+					var userDoc = {
+					    password: user_row.password,
+					    username: user_row.username,
+					    type: "user"
+					};
+					worker.postMessage({'cmd':'setPassword', 'msg':userDoc});
+				}
+								
+		    },
+			true
+		);
+
+		//update _security from loreal_app
+		if(USERNAME.roles_admin)
+			worker.postMessage({'cmd': 'setSecurity', 'msg': security_obj});
+
+		if(FORCE_LOGOUT){ 
+			logoutOnClick();
+			return;
 		}
-	);
-	
-};
+
+		console.log("Update user end!");
+
+
+	}else{
+		userstable.EDITSTOP = !userstable.EDITSTOP;
+	}
+}

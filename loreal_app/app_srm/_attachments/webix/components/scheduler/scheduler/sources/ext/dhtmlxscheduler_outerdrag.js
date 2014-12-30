@@ -1,11 +1,60 @@
 /*
-dhtmlxScheduler v.4.1.0 Stardard
+dhtmlxScheduler v.4.2.0 Stardard
 
 This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
 
 (c) Dinamenta, UAB.
 */
-scheduler.attachEvent("onTemplatesReady",function(){var e,t=new dhtmlDragAndDropObject,s=t.stopDrag;t.stopDrag=function(t){return e=t||event,s.apply(this,arguments)},t.addDragLanding(scheduler._els.dhx_cal_data[0],{_drag:function(t,s,r,a){if(!scheduler.checkEvent("onBeforeExternalDragIn")||scheduler.callEvent("onBeforeExternalDragIn",[t,s,r,a,e])){var n=scheduler.attachEvent("onEventCreated",function(s){scheduler.callEvent("onExternalDragIn",[s,t,e])||(this._drag_mode=this._drag_id=null,this.deleteEvent(s))
-}),i=scheduler.getActionData(e),d={start_date:new Date(i.date)};if(scheduler.matrix&&scheduler.matrix[scheduler._mode]){var l=scheduler.matrix[scheduler._mode];d[l.y_property]=i.section;var o=scheduler._locate_cell_timeline(e);d.start_date=l._trace_x[o.x],d.end_date=scheduler.date.add(d.start_date,l.x_step,l.x_unit)}scheduler._props&&scheduler._props[scheduler._mode]&&(d[scheduler._props[scheduler._mode].map_to]=i.section),scheduler.addEventNow(d),scheduler.detachEvent(n)}},_dragIn:function(e){return e
-},_dragOut:function(){return this}})});
-//# sourceMappingURL=../sources/ext/dhtmlxscheduler_outerdrag.js.map
+// lame old code doesn't provide raw event object
+scheduler.attachEvent("onTemplatesReady", function() {
+	var dragger = (new dhtmlDragAndDropObject());
+	var old = dragger.stopDrag;
+	var last_event;
+	dragger.stopDrag = function(e) {
+		last_event = e || event;
+		return old.apply(this, arguments);
+	};
+	dragger.addDragLanding(scheduler._els["dhx_cal_data"][0], {
+		_drag: function(sourceHtmlObject, dhtmlObject, targetHtmlObject, targetHtml) {
+
+			if (scheduler.checkEvent("onBeforeExternalDragIn") && !scheduler.callEvent("onBeforeExternalDragIn", [sourceHtmlObject, dhtmlObject, targetHtmlObject, targetHtml, last_event]))
+				return;
+
+			var temp = scheduler.attachEvent("onEventCreated", function(id) {
+				if (!scheduler.callEvent("onExternalDragIn", [id, sourceHtmlObject, last_event])) {
+					this._drag_mode = this._drag_id = null;
+					this.deleteEvent(id);
+				}
+			});
+
+			var action_data = scheduler.getActionData(last_event);
+			var event_data = {
+				start_date: new Date(action_data.date)
+			};
+
+			// custom views, need to assign section id, fix dates
+			if (scheduler.matrix && scheduler.matrix[scheduler._mode]) {
+				var view_options = scheduler.matrix[scheduler._mode];
+				event_data[view_options.y_property] = action_data.section;
+
+				var pos = scheduler._locate_cell_timeline(last_event);
+				event_data.start_date = view_options._trace_x[pos.x];
+				event_data.end_date = scheduler.date.add(event_data.start_date, view_options.x_step, view_options.x_unit);
+			}
+			if (scheduler._props && scheduler._props[scheduler._mode]) {
+				event_data[scheduler._props[scheduler._mode].map_to] = action_data.section;
+			}
+
+			scheduler.addEventNow(event_data);
+
+			scheduler.detachEvent(temp);
+
+		},
+		_dragIn: function(htmlObject, shtmlObject) {
+			return htmlObject;
+		},
+		_dragOut: function(htmlObject) {
+			return this;
+		}
+	});
+});

@@ -1,11 +1,76 @@
 /*
-dhtmlxScheduler v.4.1.0 Stardard
+dhtmlxScheduler v.4.2.0 Stardard
 
 This software is covered by GPL license. You also can obtain Commercial or Enterprise license to use it in non-GPL project - please contact sales@dhtmlx.com. Usage without proper license is prohibited.
 
 (c) Dinamenta, UAB.
 */
-scheduler.expand=function(){var e=scheduler._obj;do e._position=e.style.position||"",e.style.position="static";while((e=e.parentNode)&&e.style);e=scheduler._obj,e.style.position="absolute",e._width=e.style.width,e._height=e.style.height,e.style.width=e.style.height="100%",e.style.top=e.style.left="0px";var t=document.body;t.scrollTop=0,t=t.parentNode,t&&(t.scrollTop=0),document.body._overflow=document.body.style.overflow||"",document.body.style.overflow="hidden",scheduler._maximize()},scheduler.collapse=function(){var e=scheduler._obj;
-do e.style.position=e._position;while((e=e.parentNode)&&e.style);e=scheduler._obj,e.style.width=e._width,e.style.height=e._height,document.body.style.overflow=document.body._overflow,scheduler._maximize()},scheduler.attachEvent("onTemplatesReady",function(){var e=document.createElement("DIV");e.className="dhx_expand_icon",scheduler.toggleIcon=e,scheduler._obj.appendChild(e),e.onclick=function(){scheduler.expanded?scheduler.collapse():scheduler.expand()}}),scheduler._maximize=function(){this.expanded=!this.expanded,this.toggleIcon.style.backgroundPosition="0 "+(this.expanded?"0":"18")+"px";
-for(var e=["left","top"],t=0;t<e.length;t++){var i=(scheduler.xy["margin_"+e[t]],scheduler["_prev_margin_"+e[t]]);scheduler.xy["margin_"+e[t]]?(scheduler["_prev_margin_"+e[t]]=scheduler.xy["margin_"+e[t]],scheduler.xy["margin_"+e[t]]=0):i&&(scheduler.xy["margin_"+e[t]]=scheduler["_prev_margin_"+e[t]],delete scheduler["_prev_margin_"+e[t]])}scheduler.callEvent("onSchedulerResize",[])&&(scheduler.update_view(),scheduler.callEvent("onAfterSchedulerResize"))};
-//# sourceMappingURL=../sources/ext/dhtmlxscheduler_expand.js.map
+scheduler.expand = function() {
+	var t = scheduler._obj;
+	do {
+		t._position = t.style.position || "";
+		t.style.position = "static";
+	} while ((t = t.parentNode) && t.style);
+	t = scheduler._obj;
+	t.style.position = "absolute";
+	t._width = t.style.width;
+	t._height = t.style.height;
+	t.style.width = t.style.height = "100%";
+	t.style.top = t.style.left = "0px";
+
+	var top = document.body;
+	top.scrollTop = 0;
+
+	top = top.parentNode;
+	if (top)
+		top.scrollTop = 0;
+	document.body._overflow = document.body.style.overflow || "";
+	document.body.style.overflow = "hidden";
+	scheduler._maximize();
+};
+scheduler.collapse = function() {
+	var t = scheduler._obj;
+	do {
+		t.style.position = t._position;
+	} while ((t = t.parentNode) && t.style);
+	t = scheduler._obj;
+	t.style.width = t._width;
+	t.style.height = t._height;
+	document.body.style.overflow = document.body._overflow;
+	scheduler._maximize();
+};
+scheduler.attachEvent("onTemplatesReady", function() {
+	var t = document.createElement("DIV");
+	t.className = "dhx_expand_icon";
+	scheduler.toggleIcon = t;
+	scheduler._obj.appendChild(t);
+	t.onclick = function() {
+		if (!scheduler.expanded)
+			scheduler.expand(); else
+			scheduler.collapse();
+	};
+});
+scheduler._maximize = function() {
+	this.expanded = !this.expanded;
+	this.toggleIcon.style.backgroundPosition = "0 " + (this.expanded ? "0" : "18") + "px";
+
+	var directions = ['left', 'top'];
+	for (var i = 0; i < directions.length; i++) {
+		var margin = scheduler.xy['margin_' + directions[i]];
+		var prev_margin = scheduler['_prev_margin_' + directions[i]];
+		if (scheduler.xy['margin_' + directions[i]]) {
+			scheduler['_prev_margin_' + directions[i]] = scheduler.xy['margin_' + directions[i]];
+			scheduler.xy['margin_' + directions[i]] = 0;
+		} else {
+			if (prev_margin) {
+				scheduler.xy['margin_' + directions[i]] = scheduler['_prev_margin_' + directions[i]];
+				delete scheduler['_prev_margin_' + directions[i]];
+			}
+		}
+	}
+
+	if (scheduler.callEvent("onSchedulerResize", [])) {
+		scheduler.update_view();
+		scheduler.callEvent("onAfterSchedulerResize");
+	}
+};
